@@ -19,6 +19,7 @@ import { useAuth } from "../Util/AuthContext";
 import PrestationClientScreen from "../PrestationClient/PrestationClientScreen"
 import ImpayesScreen from "../Impayes/ImpayesScreen"
 import LoginScreen from "../Auth/Login"
+import NewPrestationScreen from "../NewPrestation/NewPrestationScreen"
 
 const Tab = createBottomTabNavigator();
 
@@ -65,7 +66,6 @@ const screenOptions = ({ route }) => ({
     ],
     tabBarHideOnKeyboard: true,
     // tabBarShowLabel: false,
-    headerShown: false,
     
 });
 
@@ -115,9 +115,9 @@ export function BottomTabs() {
     }
     return (
         <Tab.Navigator screenOptions={screenOptions}>
-            <Tab.Screen name="Accueil" component={PrestationClientScreen} />
+            <Tab.Screen name="Accueil" component={PrestationClientScreen} options={{ headerShown: false }} />
             <Tab.Screen name="Abonnés" component={PrestationClientScreen} />
-            <Tab.Screen name=" " component={PrestationClientScreen} />
+            <Tab.Screen name=" " component={NewPrestationScreen} options={{ title: 'Nouvelle Prestation' }} />
             <Tab.Screen name="Impayes" component={ImpayesScreen} />
             <Tab.Screen name="Retrait" component={ImpayesScreen} />
             {/* <Tab.Screen name="Details" component={ListSearch} />
