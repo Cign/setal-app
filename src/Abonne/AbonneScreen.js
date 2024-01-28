@@ -12,7 +12,6 @@ import {
 import Entypo from 'react-native-vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { boxStyle } from '../Util/BaseStyles';
 import { FlashList } from "@shopify/flash-list";
 import ListCard from '../Components/ListCard';
 import { Button, XGroup, XStack, YStack } from 'tamagui'
@@ -31,7 +30,7 @@ const PRESTA_LIST = [
     { name: "Amadou Ba", price: "7500", image: "", onPress: "", type: "Complet +", payment: "Wave" }
 ]
 
-const ImpayeScreen = () => {
+const PrestationClientScreen = () => {
 
     const _generateArray = (start, size) => {
 
@@ -73,29 +72,64 @@ const ImpayeScreen = () => {
             end={{ x: 0, y: 0 }}
         >
             <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
+                <View style={styles.header}>
 
-                {/* <View style={styles.sectionTitle}>
+                    <TouchableOpacity
+                        style={{ bottom: -8, }}
+                        onPress={() => navigation.navigate("NewAbonneScreen")}
+                    >
+                        <Text>Ajouter Abonné</Text>
+                        {/* <Button size="$3" style={{
+                                shadowColor: "#ff2e2e",
+                                shadowOffset: {
+                                    width: 0,
+                                    height: 3,
+                                },
+                                shadowOpacity: 0.17,
+                                shadowRadius: 3.05,
+                                elevation: 4
+                            }} variant="outlined" borderRadius={10} icon={<Entypo name="circle-with-plus" size={24} color="red" />} >
+                                H
+                            </Button> */}
+
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.sectionTitle}>
                     <Text style={{ color: "darkgrey" }}>Chiffres Abonnés</Text>
-                </View> */}
+                    {/* <Text style={{ marginRight: "7%" }}>Ajouter dépense</Text> */}
+                </View>
 
                 <View style={styles.dayInfoContainer}>
-                    <View style={[styles.boxContainer, { width: "90%" }]}>
+                    <View style={[styles.boxContainer, { width: "57%" }]}>
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
                                 <View style={styles.ellipse} />
-                                <Entypo name="cross" color="orange" size={30} />
+                                <Entypo name="arrow-down" color="orange" size={30} />
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
-                            <Text style={styles.boxInfoVerticalTitle}>Total des impayés</Text>
-                            <Text style={styles.boxInfoVerticalContent}>110 200 F</Text>
+                            <Text style={styles.boxInfoVerticalTitle}>Nombre Abonnés</Text>
+                            <Text style={styles.boxInfoVerticalContent}>107200</Text>
+                        </View>
+                    </View>
+                    <View style={[styles.boxContainer, { width: "35%" }]}>
+                        <View style={styles.iconGroup}>
+                            <View style={styles.iconOverlapGroup}>
+                                <View style={styles.ellipse} />
+                                <Entypo name="arrow-up" color="orange" size={30} />
+                            </View>
+                        </View>
+                        <View style={styles.boxInfoVertical}>
+                            <Text style={styles.boxInfoVerticalTitle}>Solde</Text>
+                            <Text style={styles.boxInfoVerticalContent}>107000</Text>
                         </View>
                     </View>
                 </View>
 
                 <View style={[styles.sectionTitle, { marginTop: 16 }]}>
-                    <Text style={{ color: "darkgrey" }}>Liste des Impayés:</Text>
-                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 11 Impayés</Text>
+                    <Text style={{ color: "darkgrey" }}>Liste des Abonnés:</Text>
+                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 17 Abonnés</Text>
                 </View>
 
                 <FlashList
@@ -114,15 +148,9 @@ const ImpayeScreen = () => {
                         }}
                     />}
                     data={data}
-                    renderItem={(item) => <ListCard item={item} />}
+                    renderItem={(item) => <ListCard item={item} action={{clickable: true, destination: "DetailsAbonneScreen"}} />}
                     estimatedItemSize={20}
                     contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
-                    // onEndReached={() => {
-                    //     // Since FlatList is a pure component, data reference should change for a render
-                    //     const elems = [...data];
-                    //     elems.push(..._generateArray(elems.length, 6));
-                    //     setData(elems)
-                    // }}
                     onEndReachedThreshold={0.2}
                 />
             </SafeAreaView>
@@ -130,7 +158,7 @@ const ImpayeScreen = () => {
     );
 };
 
-export default ImpayeScreen;
+export default PrestationClientScreen;
 
 const styles = StyleSheet.create({
     container: {

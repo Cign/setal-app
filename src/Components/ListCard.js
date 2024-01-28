@@ -1,57 +1,56 @@
-import React, {useEffect} from 'react';
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-// import {observer} from 'mobx-react-lite';
-// import {CoinsAvatar} from 'components/coinsAvatar';
-// import {LineChart} from 'react-native-chart-kit';
-// import {formatPrice} from '../utils';
-// import {Colors} from 'utils/colors';
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 // item: { name, price, image, onPress, date, change }
 
-const SmallCard = ({item: {item, index}}) => {
-    useEffect(()=> {
-        console.log("item", item)
-    }, [])
-    return (
-      <TouchableOpacity  onPress={item.onPress ? item.onPress : null}>
-        <View style={styles.container}>
-          <View style={styles.card}>
-            <View style={styles.logo}>
-              {/* <CoinsAvatar
-                style={styles.logoimg}
-                coin={item.coin}
-                source={item.image}
-              /> */}
-              <Ionicons name="car-sport-outline" size={24} color="black" />
+const SmallCard = ({ item: { item, index }, action: { clickable, destination } }) => {
+
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    console.log("item", item)
+  }, [])
+
+  const onPress = () => {
+    if (clickable) navigation.navigate(destination)
+    }
+
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <View style={styles.container}>
+        <View style={styles.card}>
+          <View style={styles.logo}>
+            <Ionicons name="car-sport-outline" size={24} color="black" />
+          </View>
+          <View style={styles.mcontainer}>
+            <Text
+              adjustsFontSizeToFit
+              numberOfLines={2}
+              style={styles.coinName}>
+              {item?.name}
+            </Text>
+            <Text style={styles.coinSymbol}>{item?.type?.toUpperCase()}</Text>
+          </View>
+          <View style={styles.rcontainer}>
+            <View style={styles.bgprice}>
+              <Text style={styles.price}>{item?.price}</Text>
             </View>
-            <View style={styles.mcontainer}>
-              <Text
-                adjustsFontSizeToFit
-                numberOfLines={2}
-                style={styles.coinName}>
-                {item?.name}
-              </Text>
-              <Text style={styles.coinSymbol}>{item?.type?.toUpperCase()}</Text>
-            </View>
-            <View style={styles.rcontainer}>
-              <View style={styles.bgprice}>
-                <Text style={styles.price}>{item?.price}</Text>
-              </View>
-              <Text
-                style={[
-                  styles.price,
-                  {color: item?.change > 0 ? '#5cb85c' : '#B35F00'},
-                ]}>
-                {item?.payment}
-              </Text>
-            </View>
+            <Text
+              style={[
+                styles.price,
+                { color: item?.change > 0 ? '#5cb85c' : '#B35F00' },
+              ]}>
+              {item?.payment}
+            </Text>
           </View>
         </View>
-      </TouchableOpacity>
-    );
-  };
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -111,7 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     margin: 0,
-    opacity:0.8
+    opacity: 0.8
   },
   bgprice: {
     justifyContent: 'center',
@@ -133,7 +132,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginHorizontal: 0,
     marginVertical: 10,
-    
+
   },
 });
 

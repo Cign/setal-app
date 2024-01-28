@@ -1,5 +1,5 @@
 import "react-native-gesture-handler";
-import React from "react";
+import React, { useState } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
@@ -20,6 +20,11 @@ import PrestationClientScreen from "../PrestationClient/PrestationClientScreen"
 import ImpayesScreen from "../Impayes/ImpayesScreen"
 import LoginScreen from "../Auth/Login"
 import NewPrestationScreen from "../NewPrestation/NewPrestationScreen"
+import CModal from "../Components/CModal"
+import AbonneScreen from "../Abonne/AbonneScreen"
+import NewAbonneScreen from "../NewAbonne/NewAbonne"
+import RetraitScreen from "../Retrait/RetraitScreen";
+import DetailsAbonneScreen from "../Abonne/DetailsAbonne";
 
 const Tab = createBottomTabNavigator();
 
@@ -36,14 +41,11 @@ const screenOptions = ({ route }) => ({
         } else if (route.name === "Impayes") {
             iconName = "price-tag";
         }
-        if (route.name === " ") {
-            return <CustomTabBarButton {...props} />
-        } 
         else if (route.name === "Abonnés") {
-          iconName = "users";
+            iconName = "users";
         }
-        else if (route.name === "Retrait") {
-          iconName = "list";
+        else if (route.name === "Retraits") {
+            iconName = "list";
         }
 
         // You can return any component that you like here!
@@ -67,6 +69,7 @@ const screenOptions = ({ route }) => ({
     tabBarHideOnKeyboard: true,
     // tabBarShowLabel: false,
     
+
 });
 
 const CustomTabBarButton = (props) => {
@@ -77,7 +80,7 @@ const CustomTabBarButton = (props) => {
             alignItems: 'center',
             ...styles.shadow,
         }}
-        onPress={props?.onClick}
+        onPress={props?.onPress}
     >
         <View style={{
             width: 70,
@@ -87,7 +90,7 @@ const CustomTabBarButton = (props) => {
             justifyContent: 'center',
             alignItems: 'center',
         }}>
-            <Entypo name={"plus"} size={props?.size} color={"#fff"} />
+            <Entypo name={"plus"} size={24} color={"#fff"} />
         </View>
     </TouchableOpacity>)
 }
@@ -97,7 +100,15 @@ const CustomTabBarButton = (props) => {
 export function BottomTabs() {
     const [user] = useAuth()
 
-    
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const openModal = () => {
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
 
     if (!user) {
         return (
@@ -114,15 +125,18 @@ export function BottomTabs() {
         )
     }
     return (
-        <Tab.Navigator screenOptions={screenOptions}>
-            <Tab.Screen name="Accueil" component={PrestationClientScreen} options={{ headerShown: false }} />
-            <Tab.Screen name="Abonnés" component={PrestationClientScreen} />
-            <Tab.Screen name=" " component={NewPrestationScreen} options={{ title: 'Nouvelle Prestation' }} />
-            <Tab.Screen name="Impayes" component={ImpayesScreen} />
-            <Tab.Screen name="Retrait" component={ImpayesScreen} />
-            {/* <Tab.Screen name="Details" component={ListSearch} />
+        <>
+            <Tab.Navigator screenOptions={screenOptions}>
+                <Tab.Screen name="Accueil" component={PrestationClientScreen} options={{ headerShown: false }} />
+                <Tab.Screen name="Abonnés" component={AbonneNavigator} options={{ headerShown: false }}/>
+                <Tab.Screen name=" " component={NewPrestationScreen} options={{ title: 'Nouvelle Prestation', tabBarButton: (props) => <CustomTabBarButton {...props}  /> }} /> 
+                <Tab.Screen name="Impayes" component={ImpayesScreen} />
+                <Tab.Screen name="Retraits" component={RetraitScreen} />
+                {/* //onPress={openModal} => show the modal
       <Tab.Screen name="Messages" component={NotificationScreen} /> */}
-        </Tab.Navigator>
+            </Tab.Navigator>
+            <CModal visible={modalVisible} onClose={closeModal} />
+        </>
     );
 }
 
@@ -139,26 +153,28 @@ const styles = StyleSheet.create({
     }
 })
 
-// const TicketBookingNavigator = ({ navigation }) => {
-//   return (
-//     <Stack.Navigator
-//       initialRouteName="DashboardScreen"
-//       screenOptions={{ unmountOnBlur: true, headerShown: false }}
-//     >
-//       <Stack.Screen
-//         name="AccueilScreen"
-//         component={RAlterHome}
-//       />
-//       <Stack.Screen
-//         name="TicketSearchListScreen"
-//         component={ListSearch}
-//       />
-//       <Stack.Screen
-//         name="SeatSelectionScreen"
-//         component={SeatSelectionScreen}
-//       />
-//     </Stack.Navigator>
-//   );
-// };
+const AbonneNavigator = ({ navigation }) => {
+  return (
+    <Stack.Navigator
+      initialRouteName="AbonneScreen"
+      screenOptions={{ unmountOnBlur: true, headerShown: true }}
+    >
+      <Stack.Screen
+        name="Abonnés"
+        component={AbonneScreen}
+      />
+      <Stack.Screen
+        name="NewAbonneScreen"
+        component={NewAbonneScreen}
+        options={{ title:"Créer nouvel abonné"}}
+      />
+      <Stack.Screen
+        name="DetailsAbonneScreen"
+        component={DetailsAbonneScreen}
+        options={{ title:"Infos sur l'abonné"}}
+      />
+    </Stack.Navigator>
+  );
+};
 
 

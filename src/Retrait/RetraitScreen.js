@@ -24,19 +24,10 @@ const PRESTA_LIST = [
     { name: "Mango Fall", price: "5000", image: "", onPress: "", type: "Complet", payment: "Impaye" },
     { name: "Bougah Jean", price: "2500", image: "", onPress: "", type: "simple", payment: "OM" },
     { name: "Alassane Niang", price: "2500", image: "", onPress: "", type: "simple", payment: "Wave" },
-    { name: "Ndiogou Cisse", price: "5000", image: "", onPress: "", type: "Complet", payment: "Cash" },
-    { name: "Fallou Ba", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-    { name: "Kader Lo", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-    { name: "Ibrahim Kante", price: "5000", image: "", onPress: "", type: "Complet", payment: "Wave" },
-    { name: "Amadou Ba", price: "7500", image: "", onPress: "", type: "Complet +", payment: "Wave" }
 ]
 
-const ImpayeScreen = () => {
+const RetraitScreen = () => {
 
-    const _generateArray = (start, size) => {
-
-        return PRESTA_LIST.slice(start, size);
-    }
 
     const navigation = useNavigation();
     const [data, setData] = useState(PRESTA_LIST);
@@ -78,7 +69,7 @@ const ImpayeScreen = () => {
                     <Text style={{ color: "darkgrey" }}>Chiffres Abonnés</Text>
                 </View> */}
 
-                <View style={styles.dayInfoContainer}>
+                {/* <View style={styles.dayInfoContainer}>
                     <View style={[styles.boxContainer, { width: "90%" }]}>
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
@@ -87,15 +78,15 @@ const ImpayeScreen = () => {
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
-                            <Text style={styles.boxInfoVerticalTitle}>Total des impayés</Text>
+                            <Text style={styles.boxInfoVerticalTitle}>Total des </Text>
                             <Text style={styles.boxInfoVerticalContent}>110 200 F</Text>
                         </View>
                     </View>
-                </View>
+                </View> */}
 
                 <View style={[styles.sectionTitle, { marginTop: 16 }]}>
-                    <Text style={{ color: "darkgrey" }}>Liste des Impayés:</Text>
-                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 11 Impayés</Text>
+                    <Text style={{ color: "darkgrey" }}>A retirer:</Text>
+                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 5 tapis</Text>
                 </View>
 
                 <FlashList
@@ -130,7 +121,7 @@ const ImpayeScreen = () => {
     );
 };
 
-export default ImpayeScreen;
+export default RetraitScreen;
 
 const styles = StyleSheet.create({
     container: {

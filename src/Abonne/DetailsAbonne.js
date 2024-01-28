@@ -10,6 +10,7 @@ import {
     Platform
 } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { boxStyle } from '../Util/BaseStyles';
@@ -31,12 +32,7 @@ const PRESTA_LIST = [
     { name: "Amadou Ba", price: "7500", image: "", onPress: "", type: "Complet +", payment: "Wave" }
 ]
 
-const ImpayeScreen = () => {
-
-    const _generateArray = (start, size) => {
-
-        return PRESTA_LIST.slice(start, size);
-    }
+const DetailsAbonneScreen = () => {
 
     const navigation = useNavigation();
     const [data, setData] = useState(PRESTA_LIST);
@@ -74,28 +70,41 @@ const ImpayeScreen = () => {
         >
             <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
 
-                {/* <View style={styles.sectionTitle}>
-                    <Text style={{ color: "darkgrey" }}>Chiffres Abonnés</Text>
-                </View> */}
+                <View style={styles.sectionTitle}>
+                    <Text style={{ color: "darkgrey" }}>Details Abonnés</Text>
+                    {/* <Text style={{ marginRight: "7%" }}>Ajouter dépense</Text> */}
+                </View>
 
                 <View style={styles.dayInfoContainer}>
-                    <View style={[styles.boxContainer, { width: "90%" }]}>
+                    <View style={[styles.boxContainer, { width: "57%" }]}>
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
                                 <View style={styles.ellipse} />
-                                <Entypo name="cross" color="orange" size={30} />
+                                <Entypo name="plus" color="orange" size={30} />
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
-                            <Text style={styles.boxInfoVerticalTitle}>Total des impayés</Text>
-                            <Text style={styles.boxInfoVerticalContent}>110 200 F</Text>
+                            {/* <Text style={styles.boxInfoVerticalTitle}>Nombre Abonnés</Text> */}
+                            <Text style={styles.boxInfoVerticalContent}>Nouvelle Prestation</Text>
+                        </View>
+                    </View>
+                    <View style={[styles.boxContainer, { width: "35%" }]}>
+                        <View style={styles.iconGroup}>
+                            <View style={styles.iconOverlapGroup}>
+                                <View style={styles.ellipse} />
+                                <FontAwesome5 name="hand-holding-usd" size={24} color="black" />
+                            </View>
+                        </View>
+                        <View style={styles.boxInfoVertical}>
+                            {/* <Text style={styles.boxInfoVerticalTitle}>Solde</Text> */}
+                            <Text style={styles.boxInfoVerticalContent}>Versement</Text>
                         </View>
                     </View>
                 </View>
 
                 <View style={[styles.sectionTitle, { marginTop: 16 }]}>
-                    <Text style={{ color: "darkgrey" }}>Liste des Impayés:</Text>
-                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 11 Impayés</Text>
+                    <Text style={{ color: "darkgrey" }}>Liste des Prestations du Mois:</Text>
+                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 15 Abonnés</Text>
                 </View>
 
                 <FlashList
@@ -117,12 +126,6 @@ const ImpayeScreen = () => {
                     renderItem={(item) => <ListCard item={item} />}
                     estimatedItemSize={20}
                     contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
-                    // onEndReached={() => {
-                    //     // Since FlatList is a pure component, data reference should change for a render
-                    //     const elems = [...data];
-                    //     elems.push(..._generateArray(elems.length, 6));
-                    //     setData(elems)
-                    // }}
                     onEndReachedThreshold={0.2}
                 />
             </SafeAreaView>
@@ -130,7 +133,7 @@ const ImpayeScreen = () => {
     );
 };
 
-export default ImpayeScreen;
+export default DetailsAbonneScreen;
 
 const styles = StyleSheet.create({
     container: {
