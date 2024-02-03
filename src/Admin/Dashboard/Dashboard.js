@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -8,19 +8,15 @@ import {
     SafeAreaView,
     Platform
 } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 import Entypo from 'react-native-vector-icons/Entypo';
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FlashList } from "@shopify/flash-list";
-import ListCard from '../Components/ListCard';
-import { YStack, Sheet, Label, Input, Button } from 'tamagui'
-import { useAuth } from '../Util/AuthContext';
-import { baseUrl } from '../Util/BaseUrl';
-import axios from 'axios';
-import Colors from '../Util/static/Colors';
-import SuccessModal from '../Util/SuccessModal';
-
+import ListCard from '../../Components/ListCard';
+import { YStack, Sheet, Label, Input, Button, Tabs, Separator, SizableText, isWeb, ScrollView } from 'tamagui'
+import DatePicker from '../../Util/DatePicker';
+import filter from "lodash.filter"
 
 const PRESTA_LIST = [
     { name: "Ousmane Tall", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash", category: "" },
@@ -34,73 +30,192 @@ const PRESTA_LIST = [
     { name: "Amadou Ba", price: "7500", image: "", onPress: "", type: "Complet +", payment: "Wave" }
 ]
 
-const PrestationClientScreen = () => {
+export const formatDateForSearch = (date) => {
+    // Your date string
+    var dateString = "2024-01-26T16:45:00.000Z";
+
+    // Create a Date object from the string
+    var dateObject = new Date(dateString);
+
+    // Get the date components
+    var year = dateObject.getFullYear();
+    var month = dateObject.getMonth() + 1; // Note: Months are zero-indexed, so add 1
+    var day = dateObject.getDate();
+
+    // Format the date as a string (you can adjust the format as needed)
+    var formattedDate = year + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day;
+
+    return formattedDate;
+}
+
+const Dashboard = () => {
 
     const _generateArray = (start, size) => {
 
         return PRESTA_LIST.slice(start, size);
     }
+    const onDateChange = (selectedDate, isFirstDate) => {
+        const date = formatDateForSearch(selectedDate);
+        console.log("Formatted date: ", date);
+        isFirstDate ? setDateDebut(date) : setDateFin(date);
+    };
 
     const navigate = useNavigation();
-    const [data, setData] = useState(_generateArray(0, 10));
-    const [montantDepense, setMontantDepense] = useState(_generateArray(0, 10));
-    const [objetDepense, setObjetDepense] = useState(_generateArray(0, 10));
+    const [data, setData] = useState(_generateArray(0, 1));
+    const [montantDepense, setMontantDepense] = useState(0);
+    const [objetDepense, setObjetDepense] = useState(0);
     const [position, setPosition] = useState(0)
     const [open, setOpen] = useState(false)
     const [modal, setModal] = useState(true)
     const [snapPointsMode, setSnapPointsMode] = useState('percent')
-    const [user, setUser] = useAuth();
-    const [isModalVisible, setModalVisible] = useState(false);
+    const [dateDebut, setDateDebut] = useState("");
+    const [dateFin, setDateFin] = useState("");
+    const snapPoints = [50, 25];
+    const [query, setQuery] = useState("");
 
-    const clearText = () => {
-        setMontantDepense('');
-        setObjetDepense('');
-    }
+    const handleChangeText = (query) => {
+        setQuery(query);
+        const formattedQuery = query.trim().toLowerCase();
 
-    useFocusEffect(
-        React.useCallback(() => {
-            const getPrestationsListByUserId = async () => {
-                try {
-                    console.log('Trying hard', user);
-                    // #: $contains
-                    const { data } = await axios.get(`${baseUrl}/api/prestations?populate=*&filters[employe][id][$eqi]=${user?.id}`, {
-                        headers: { Authorization: `Bearer ${user?.token}` },
-                    });
-                    console.log('Successfully got the prestas $$', data?.data);
-                    setData(data?.data);
-                } catch (err) {
-                    console.error('Failed to get prestas', err);
-                }
-            }
-            getPrestationsListByUserId();
-        }, [])
-    );
-
-    const addDepense = async () => {
-        try {
-            const postData = {
-                data: {
-                    objet: objetDepense,
-                    montant: montantDepense,
-                    users_permissions_user: user?.id,
-                }
-            };
-
-            await axios.post(`${baseUrl}/api/depenses`, postData, {
-                headers: { Authorization: `Bearer ${user?.token}` },
-            });
-            console.log('Successfully created a new DEPENSE');
-            setModalVisible(true);
-            clearText();
-            setOpen(false)
-
-        } catch (err) {
-            console.error('Failed to CREATE DEPENSE', err);
+        if (!formattedQuery) {
+            setData(PRESTA_LIST);
+            return
         }
+        const filteredData = filter(data, (presta) => {
+            return contains(presta, formattedQuery);
+        })
+        setData(filteredData);
     }
 
+    const contains = ({ name, price, payment }, query) => {
+        return [name, price, payment].some(prop => prop.toLowerCase().includes(query));
+    }
 
-    const snapPoints = [50, 25]
+    const ListHeaderComponent = () => {
+        return (
+            <View>
+                <View style={[{ flexGrow: 1, flexDirection: "row", alignContent: "center", justifyContent: "space-around", marginBottom: 6 }, styles.fieldContainer]}>
+                    <View style={{ justifyContent: "center", flexDirection: "row", marginRight: 2 }}>
+                        <Ionicons
+                            style={{ alignSelf: "center" }}
+                            name="calendar"
+                            size={24}
+                            color="#828595"
+                        />
+                        <DatePicker value={dateDebut} onChange={(date) => onDateChange(date, true)} format={"YYYY-MM-DD"} />
+                    </View>
+                    <View style={{ justifyContent: "center", flexDirection: "row" }}>
+                        <Ionicons
+                            style={{ alignSelf: "center" }}
+                            name="calendar"
+                            size={24}
+                            color="#828595"
+                        />
+                        <DatePicker value={dateFin} onChange={(date) => onDateChange(date, false)} format={"YYYY-MM-DD"} />
+                    </View>
+                </View>
+                <Input
+                    value={query}
+                    style={styles.input}
+                    inputStyle={styles.inputStyle}
+                    labelStyle={styles.labelStyle}
+                    placeholderStyle={styles.placeholderStyle}
+                    textErrorStyle={styles.textErrorStyle}
+                    label="Rechercher dans la liste"
+                    placeholder="Rechercher par le nom, montant, ou type paiement"
+                    placeholderTextColor="gray"
+                    onChangeText={handleChangeText}
+                />
+            </View>
+        )
+    }
+
+    const HorizontalTabs = () => {
+        return (
+            <Tabs
+                defaultValue="tab1"
+                orientation="horizontal"
+                flexDirection="column"
+                borderRadius="$4"
+                borderWidth="$0.25"
+                overflow="hidden"
+                borderColor="$borderColor"
+                height={100}
+            >
+                <Tabs.List
+                    separator={<Separator vertical />}
+                    disablePassBorderRadius="bottom"
+                    aria-label="Manage your account"
+                >
+                    <Tabs.Tab flex={1} value="tab1">
+                        <SizableText fontFamily="$body">Recettes</SizableText>
+                    </Tabs.Tab>
+                    <Tabs.Tab flex={1} style={{ minHeight: 2, }} value="tab2">
+                        <SizableText fontFamily="$body">Dépenses</SizableText>
+                    </Tabs.Tab>
+                </Tabs.List>
+                <Separator />
+                <TabsContent value="tab1">
+                    {/* <FlashList
+                        StickyHeaderComponent={
+                            <ListHeaderComponent />
+                        }
+                        data={data}
+                        renderItem={(item) => <ListCard item={item} />}
+                        estimatedItemSize={20}
+                        contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
+                        onEndReached={() => {
+                            // Since FlatList is a pure component, data reference should change for a render
+                            const elems = [...data];
+                            elems.push(..._generateArray(elems.length, 6));
+                            setData(elems)
+                        }}
+                        onEndReachedThreshold={0.2}
+                    /> */}
+                    <Text>Hola</Text>
+                </TabsContent>
+
+                <Tabs.Content value="tab2">
+                    <ScrollView style={{ flexGrow: 1 }}>
+                        <FlashList
+                            data={data}
+                            renderItem={(item) => <ListCard item={item} />}
+                            estimatedItemSize={20}
+                            contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
+                            onEndReached={() => {
+                                // Since FlatList is a pure component, data reference should change for a render
+                                const elems = [...data];
+                                elems.push(..._generateArray(elems.length, 2));
+                                setData(elems)
+                            }}
+                        />
+                    </ScrollView>
+                    {/* <Text>Hola</Text> */}
+                </Tabs.Content>
+            </Tabs>
+        )
+    }
+
+    const TabsContent = (props) => {
+        return (
+            <Tabs.Content
+                backgroundColor="$background"
+                key="tab3"
+                padding="$2"
+                // alignItems="center"
+                // justifyContent="center"
+                // flex={1}
+                borderColor="$background"
+                borderRadius="$2"
+                borderTopLeftRadius={0}
+                borderTopRightRadius={0}
+                borderWidth="$2"
+                {...props}
+            >
+                {props.children}
+            </Tabs.Content>
+        )
+    }
 
     return (
         <LinearGradient
@@ -110,17 +225,16 @@ const PrestationClientScreen = () => {
             end={{ x: 0, y: 0 }}
         >
             <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
-                <SuccessModal visible={isModalVisible} onClose={() => setModalVisible(false)} />
                 <View style={styles.header}>
-                    {/* <Image style={styles.avatar} source={AppImages.userImage} /> */}
                     <View style={{ flex: 1, marginHorizontal: 8 }}>
                         <Text style={{ color: "darkgrey" }}>Bienvenu(e)</Text>
-                        <Text style={styles.username}>{user?.username}</Text>
+                        <Text style={styles.username}> {"Ali"} {" " + "Thiam"}</Text>
                     </View>
 
                     <TouchableOpacity
                         style={{ bottom: -8, }}
-                        onPress={() => setUser(null)}
+                        onPress={() => {
+                        }}
                     >
                         <View style={styles.fPointsContainer}>
                             <View style={styles.charContainer}>
@@ -169,6 +283,32 @@ const PrestationClientScreen = () => {
                         </View>
                     </View>
                 </View>
+                <View style={styles.dayInfoContainer}>
+                    <View style={styles.boxContainer}>
+                        <View style={styles.iconGroup}>
+                            <View style={styles.iconOverlapGroup}>
+                                <View style={styles.ellipse} />
+                                <Entypo name="arrow-down" color="orange" size={30} />
+                            </View>
+                        </View>
+                        <View style={styles.boxInfoVertical}>
+                            <Text style={styles.boxInfoVerticalTitle}>Recettes</Text>
+                            <Text style={styles.boxInfoVerticalContent}>107200</Text>
+                        </View>
+                    </View>
+                    <View style={styles.boxContainer}>
+                        <View style={styles.iconGroup}>
+                            <View style={styles.iconOverlapGroup}>
+                                <View style={styles.ellipse} />
+                                <Entypo name="arrow-up" color="orange" size={30} />
+                            </View>
+                        </View>
+                        <View style={styles.boxInfoVertical}>
+                            <Text style={styles.boxInfoVerticalTitle}>Dépenses</Text>
+                            <Text style={styles.boxInfoVerticalContent}>107000</Text>
+                        </View>
+                    </View>
+                </View>
 
                 <View style={[styles.sectionTitle, { marginTop: 16 }]}>
                     <Text style={{ color: "darkgrey" }}>Liste des Prestations du jour:</Text>
@@ -176,15 +316,16 @@ const PrestationClientScreen = () => {
                 </View>
 
                 <FlashList
+                    ListHeaderComponent={<ListHeaderComponent />}
                     data={data}
                     renderItem={(item) => <ListCard item={item} />}
                     estimatedItemSize={20}
                     contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
                     onEndReached={() => {
                         // Since FlatList is a pure component, data reference should change for a render
-                        // const elems = [...data];
-                        // elems.push(..._generateArray(elems.length, 6));
-                        // setData(elems)
+                        const elems = [...data];
+                        elems.push(..._generateArray(elems.length, 6));
+                        setData(elems)
                     }}
                     onEndReachedThreshold={0.2}
                 />
@@ -210,20 +351,19 @@ const PrestationClientScreen = () => {
                     <Sheet.Handle />
                     <Sheet.Frame padding="$4" space="$5">
                         <YStack>
-                            <Label htmlFor="objet">
-                                Objet:
+                            <Label htmlFor="montant">
+                                Objet de la Dépense:
                             </Label>
-                            <Input size="$4" id="objet" placeholder="Objet de la Dépense" value={objetDepense} onChangeText={setObjetDepense} style={styles.shadowStyle} />
-                            <Label htmlFor="objet">
-                                Montant:
+                            <Input size="$4" id="montant" placeholder="Objet" value={objetDepense} onChange={setObjetDepense} style={styles.shadowStyle} />
+                            <Label htmlFor="montant">
+                                Montant de la Dépense:
                             </Label>
-                            <Input size="$4" id="montant" placeholder="Montant de la Dépense" value={montantDepense} onChangeText={setMontantDepense} style={styles.shadowStyle} />
+                            <Input size="$4" id="montant" placeholder="Montant" value={montantDepense} onChange={setMontantDepense} style={styles.shadowStyle} />
                             <Button
                                 title='Enregistrer'
-                                backgroundColor={Colors.baseColor}
+                                backgroundColor="#ff2e2e"
                                 color={'cyan'}
                                 style={{ marginTop: 6 }}
-                                onPress={addDepense}
                             >
                                 Enregistrer
                             </Button>
@@ -235,7 +375,7 @@ const PrestationClientScreen = () => {
     );
 };
 
-export default PrestationClientScreen;
+export default Dashboard;
 
 const styles = StyleSheet.create({
     container: {

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@expo/webpack-config": "~19.0.1",
+    "@react-native-community/datetimepicker": "7.6.1",
     "@react-navigation/bottom-tabs": "^6.5.11",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/stack": "^6.3.20",
@@ -19,6 +20,7 @@
     "@tamagui/config": "^1.88.13",
     "@tamagui/font-inter": "^1.88.13",
     "@tamagui/theme-base": "^1.88.13",
+    "axios": "^1.6.7",
     "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "expo": "~50.0.2",
     "expo-font": "^11.10.2",
@@ -31,8 +33,10 @@
     "react-native-element-dropdown": "^2.10.1",
     "react-native-element-textinput": "^2.2.0",
     "react-native-gesture-handler": "~2.14.0",
+    "react-native-pager-view": "6.2.3",
     "react-native-reanimated": "~3.6.0",
     "react-native-screens": "~3.29.0",
+    "react-native-tab-view": "^3.5.2",
     "react-native-web": "~0.19.6",
     "tamagui": "^1.88.13",
     "undefined": "@tamagui/config/v2"

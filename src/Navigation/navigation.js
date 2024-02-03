@@ -25,12 +25,55 @@ import AbonneScreen from "../Abonne/AbonneScreen"
 import NewAbonneScreen from "../NewAbonne/NewAbonne"
 import RetraitScreen from "../Retrait/RetraitScreen";
 import DetailsAbonneScreen from "../Abonne/DetailsAbonne";
+import DashboardScreen from "../Admin/Dashboard/Dashboard"
 
 const Tab = createBottomTabNavigator();
 
 const Stack = createStackNavigator();
 
+export function BottomTabs() {
+    const [user] = useAuth()
 
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const openModal = () => {
+        setModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setModalVisible(false);
+    };
+
+    if (!user) {
+        return (
+            <Stack.Navigator screenOptions={{ unmountOnBlur: true, headerShown: false }}>
+                <Stack.Screen
+                    name="LoginScreen"
+                    component={LoginScreen}
+                />
+                {/* <Stack.Screen
+          name="RegisterScreen"
+          component={RegisterScreen}
+        /> */}
+            </Stack.Navigator>
+        )
+    }
+    return (
+        <>
+            <Tab.Navigator screenOptions={screenOptions}>
+                <Tab.Screen name="Accueil" component={PrestationClientScreen} options={{ headerShown: false }} />
+                <Tab.Screen name="Abonnements" component={AbonneNavigator} options={{ headerShown: false }}/>
+                <Tab.Screen name=" " component={NewPrestationScreen} options={{ title: 'Nouvelle Prestation', tabBarButton: (props) => <CustomTabBarButton {...props}  /> }} /> 
+                <Tab.Screen name="Impayes" component={ImpayesScreen} />
+                <Tab.Screen name="Retraits" component={RetraitScreen} />
+                <Tab.Screen name="AdminBoard" component={DashboardScreen} />
+                {/* //onPress={openModal} => show the modal
+      <Tab.Screen name="Messages" component={NotificationScreen} /> */}
+            </Tab.Navigator>
+            <CModal visible={modalVisible} onClose={closeModal} />
+        </>
+    );
+}
 
 const screenOptions = ({ route }) => ({
     tabBarIcon: (props) => {
@@ -41,7 +84,7 @@ const screenOptions = ({ route }) => ({
         } else if (route.name === "Impayes") {
             iconName = "price-tag";
         }
-        else if (route.name === "Abonnés") {
+        else if (route.name === "Abonnements") {
             iconName = "users";
         }
         else if (route.name === "Retraits") {
@@ -95,50 +138,6 @@ const CustomTabBarButton = (props) => {
     </TouchableOpacity>)
 }
 
-
-
-export function BottomTabs() {
-    const [user] = useAuth()
-
-    const [modalVisible, setModalVisible] = useState(false);
-
-    const openModal = () => {
-        setModalVisible(true);
-    };
-
-    const closeModal = () => {
-        setModalVisible(false);
-    };
-
-    if (!user) {
-        return (
-            <Stack.Navigator screenOptions={{ unmountOnBlur: true, headerShown: false }}>
-                <Stack.Screen
-                    name="LoginScreen"
-                    component={LoginScreen}
-                />
-                {/* <Stack.Screen
-          name="RegisterScreen"
-          component={RegisterScreen}
-        /> */}
-            </Stack.Navigator>
-        )
-    }
-    return (
-        <>
-            <Tab.Navigator screenOptions={screenOptions}>
-                <Tab.Screen name="Accueil" component={PrestationClientScreen} options={{ headerShown: false }} />
-                <Tab.Screen name="Abonnés" component={AbonneNavigator} options={{ headerShown: false }}/>
-                <Tab.Screen name=" " component={NewPrestationScreen} options={{ title: 'Nouvelle Prestation', tabBarButton: (props) => <CustomTabBarButton {...props}  /> }} /> 
-                <Tab.Screen name="Impayes" component={ImpayesScreen} />
-                <Tab.Screen name="Retraits" component={RetraitScreen} />
-                {/* //onPress={openModal} => show the modal
-      <Tab.Screen name="Messages" component={NotificationScreen} /> */}
-            </Tab.Navigator>
-            <CModal visible={modalVisible} onClose={closeModal} />
-        </>
-    );
-}
 
 const styles = StyleSheet.create({
     shadow: {

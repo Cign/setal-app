@@ -4,9 +4,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-// item: { name, price, image, onPress, date, change }
-
-const SmallCard = ({ item: {item}, action, onPressAction }) => {
+const ListCardPrestaAbonne = ({ item: {item}, action, onPressAction }) => {
 
   const navigation = useNavigation();
 
@@ -32,20 +30,20 @@ const SmallCard = ({ item: {item}, action, onPressAction }) => {
               adjustsFontSizeToFit
               numberOfLines={2}
               style={styles.coinName}>
-              {item?.attributes?.NomCompletClient}
+              {item?.attributes?.createdAt}
             </Text>
-            <Text style={styles.coinSymbol}>{item?.attributes?.type_lavage?.data?.attributes?.title?.toUpperCase()}</Text>
+            {/* <Text style={styles.coinSymbol}>{item?.attributes?.type_lavage?.data?.attributes?.title?.toUpperCase()}</Text> */}
           </View>
           <View style={styles.rcontainer}>
             <View style={styles.bgprice}>
-              <Text style={styles.price}>{item?.attributes?.montant}</Text>
+              <Text style={styles.price}>{item?.attributes?.commentaire}</Text>
             </View>
             <Text
               style={[
                 styles.price,
                 { color: item?.change > 0 ? '#5cb85c' : '#B35F00' },
               ]}>
-              {item?.attributes?.mode_paiement?.data?.attributes?.name}
+              {item?.attributes?.createdAt}
             </Text>
           </View>
         </View>
@@ -138,4 +136,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo(SmallCard);
+export default React.memo(ListCardPrestaAbonne);

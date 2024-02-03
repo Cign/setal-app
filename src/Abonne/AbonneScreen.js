@@ -3,8 +3,6 @@ import {
     StyleSheet,
     Text,
     View,
-    Dimensions,
-    ScrollView,
     TouchableOpacity,
     SafeAreaView,
     Platform
@@ -13,33 +11,22 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FlashList } from "@shopify/flash-list";
-import ListCard from '../Components/ListCard';
+import ListCardAbonne from '../Components/ListCardAbonne';
 import { Button, XGroup, XStack, YStack } from 'tamagui'
 import { TextInput } from 'react-native-element-textinput';
 import filter from "lodash.filter"
+import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../Util/AuthContext';
+import axios from 'axios';
+import { baseUrl } from '../Util/BaseUrl';
 
-const PRESTA_LIST = [
-    { name: "Ousmane Tall", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash", category: "" },
-    { name: "Mango Fall", price: "5000", image: "", onPress: "", type: "Complet", payment: "Impaye" },
-    { name: "Bougah Jean", price: "2500", image: "", onPress: "", type: "simple", payment: "OM" },
-    { name: "Alassane Niang", price: "2500", image: "", onPress: "", type: "simple", payment: "Wave" },
-    { name: "Ndiogou Cisse", price: "5000", image: "", onPress: "", type: "Complet", payment: "Cash" },
-    { name: "Fallou Ba", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-    { name: "Kader Lo", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-    { name: "Ibrahim Kante", price: "5000", image: "", onPress: "", type: "Complet", payment: "Wave" },
-    { name: "Amadou Ba", price: "7500", image: "", onPress: "", type: "Complet +", payment: "Wave" }
-]
 
-const PrestationClientScreen = () => {
-
-    const _generateArray = (start, size) => {
-
-        return PRESTA_LIST.slice(start, size);
-    }
+const AbonneScreen = () => {
 
     const navigation = useNavigation();
-    const [data, setData] = useState(PRESTA_LIST);
+    const [data, setData] = useState([]);
     const [query, setQuery] = useState("");
+    const [user, setUser] = useAuth();
 
     const handleSearch = (query) => {
         setQuery(query);
@@ -63,6 +50,25 @@ const PrestationClientScreen = () => {
         }
         return false;
     }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const getAbonnes = async () => {
+                try {
+                    console.log('Trying hard', user);
+                    // #: $contains
+                    const { data } = await axios.get(`${baseUrl}/api/abonnes?populate=*`, {
+                        headers: { Authorization: `Bearer ${user?.token}` },
+                    });
+                    console.log('Successfully got the prestas $$', data?.data);
+                    setData(data?.data);
+                } catch (err) {
+                    console.error('Failed to get prestas', err);
+                }
+            }
+            getAbonnes();
+        }, [])
+    );
 
     return (
         <LinearGradient
@@ -148,7 +154,7 @@ const PrestationClientScreen = () => {
                         }}
                     />}
                     data={data}
-                    renderItem={(item) => <ListCard item={item} action={{clickable: true, destination: "DetailsAbonneScreen"}} />}
+                    renderItem={(item) => <ListCardAbonne item={item} action={{clickable: true, destination: "DetailsAbonneScreen"}} />}
                     estimatedItemSize={20}
                     contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
                     onEndReachedThreshold={0.2}
@@ -158,7 +164,7 @@ const PrestationClientScreen = () => {
     );
 };
 
-export default PrestationClientScreen;
+export default AbonneScreen;
 
 const styles = StyleSheet.create({
     container: {
@@ -323,22 +329,22 @@ const styles = StyleSheet.create({
     },
     boxInfoVerticalTitle: {
         color: '#222222',
-        fontFamily: 'DM Sans-Regular',
+        // fontFamily: 'DM Sans-Regular',
         fontSize: 13,
         fontWeight: '400',
         letterSpacing: 0,
-        lineHeight: 'normal',
+        lineHeight: 1,
         marginTop: -1,
         opacity: 0.4,
         position: 'relative',
     },
     boxInfoVerticalContent: {
         color: '#222222',
-        fontFamily: 'DM Sans-Bold',
+        // fontFamily: 'DM Sans-Bold',
         fontSize: 20,
         fontWeight: '700',
         letterSpacing: 0,
-        lineHeight: 'normal',
+        lineHeight: 1,
         position: 'relative',
     },
 

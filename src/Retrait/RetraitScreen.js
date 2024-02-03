@@ -15,7 +15,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { boxStyle } from '../Util/BaseStyles';
 import { FlashList } from "@shopify/flash-list";
 import ListCard from '../Components/ListCard';
-import { Button, XGroup, XStack, YStack } from 'tamagui'
+import { Button, XGroup, XStack, YStack, Sheet, H5, Paragraph } from 'tamagui'
 import { TextInput } from 'react-native-element-textinput';
 import filter from "lodash.filter"
 
@@ -32,6 +32,15 @@ const RetraitScreen = () => {
     const navigation = useNavigation();
     const [data, setData] = useState(PRESTA_LIST);
     const [query, setQuery] = useState("");
+
+    const [position, setPosition] = useState(0)
+    const [open, setOpen] = useState(false)
+    const [modal, setModal] = useState(true)
+    const [innerOpen, setInnerOpen] = useState(false)
+    const [snapPointsMode, setSnapPointsMode] = useState('percent')
+    const [mixedFitDemo, setMixedFitDemo] = useState(false)
+
+    const snapPoints = [50, 25]
 
     const handleSearch = (query) => {
         setQuery(query);
@@ -56,33 +65,13 @@ const RetraitScreen = () => {
         return false;
     }
 
+    const confirmRetrait = () => {
+        // mettre retrait a true quand il sagit d'un tapis par l'id de la presta
+        setOpen(true)
+    }
+
     return (
-        <LinearGradient
-            style={styles.container}
-            colors={["white", "white", "white"]}
-            start={{ x: 0.5, y: 1 }}
-            end={{ x: 0, y: 0 }}
-        >
             <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
-
-                {/* <View style={styles.sectionTitle}>
-                    <Text style={{ color: "darkgrey" }}>Chiffres Abonnés</Text>
-                </View> */}
-
-                {/* <View style={styles.dayInfoContainer}>
-                    <View style={[styles.boxContainer, { width: "90%" }]}>
-                        <View style={styles.iconGroup}>
-                            <View style={styles.iconOverlapGroup}>
-                                <View style={styles.ellipse} />
-                                <Entypo name="cross" color="orange" size={30} />
-                            </View>
-                        </View>
-                        <View style={styles.boxInfoVertical}>
-                            <Text style={styles.boxInfoVerticalTitle}>Total des </Text>
-                            <Text style={styles.boxInfoVerticalContent}>110 200 F</Text>
-                        </View>
-                    </View>
-                </View> */}
 
                 <View style={[styles.sectionTitle, { marginTop: 16 }]}>
                     <Text style={{ color: "darkgrey" }}>A retirer:</Text>
@@ -105,19 +94,53 @@ const RetraitScreen = () => {
                         }}
                     />}
                     data={data}
-                    renderItem={(item) => <ListCard item={item} />}
+                    renderItem={(item) => <ListCard item={item} onPressAction={confirmRetrait(item)} />}
                     estimatedItemSize={20}
                     contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
-                    // onEndReached={() => {
-                    //     // Since FlatList is a pure component, data reference should change for a render
-                    //     const elems = [...data];
-                    //     elems.push(..._generateArray(elems.length, 6));
-                    //     setData(elems)
-                    // }}
                     onEndReachedThreshold={0.2}
                 />
+                <Sheet
+        forceRemoveScrollEnabled={open}
+        modal={modal}
+        open={open}
+        onOpenChange={setOpen}
+        snapPoints={snapPoints}
+        snapPointsMode={snapPointsMode}
+        dismissOnSnapToBottom
+        position={position}
+        onPositionChange={setPosition}
+        zIndex={100_000}
+        animation=""
+        moveOnKeyboardChange={true}
+      >
+        <Sheet.Overlay
+          animation="lazy"
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+        />
+        <Sheet.Handle />
+        <Sheet.Frame padding="$4" space="$5">
+          <YStack>
+            <H5>Confirmer le retrait </H5>
+            <Paragraph>
+              Le client xxx à retirer son tapis/colis ?
+            </Paragraph>
+            <XStack>
+              <Button
+                title='Non'
+                color="lightblue"
+
+              />
+              <Button
+                title='Oui'
+                color="#ff2e2e"
+              />
+            </XStack>
+
+          </YStack>
+        </Sheet.Frame>
+      </Sheet>
             </SafeAreaView>
-        </LinearGradient>
     );
 };
 
@@ -286,22 +309,22 @@ const styles = StyleSheet.create({
     },
     boxInfoVerticalTitle: {
         color: '#222222',
-        fontFamily: 'DM Sans-Regular',
+        // fontFamily: 'DM Sans-Regular',
         fontSize: 13,
         fontWeight: '400',
         letterSpacing: 0,
-        lineHeight: 'normal',
+        // lineHeight: 'normal',
         marginTop: -1,
         opacity: 0.4,
         position: 'relative',
     },
     boxInfoVerticalContent: {
         color: '#222222',
-        fontFamily: 'DM Sans-Bold',
+        // fontFamily: 'DM Sans-Bold',
         fontSize: 20,
         fontWeight: '700',
         letterSpacing: 0,
-        lineHeight: 'normal',
+        // lineHeight: 'normal',
         position: 'relative',
     },
 

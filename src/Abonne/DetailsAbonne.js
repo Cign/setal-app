@@ -7,7 +7,8 @@ import {
     ScrollView,
     TouchableOpacity,
     SafeAreaView,
-    Platform
+    Platform,
+    Button,
 } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -15,36 +16,45 @@ import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { boxStyle } from '../Util/BaseStyles';
 import { FlashList } from "@shopify/flash-list";
-import ListCard from '../Components/ListCard';
-import { Button, XGroup, XStack, YStack } from 'tamagui'
+import ListCardPrestaAbonne from '../Components/ListCardPrestaAbonne';
+import { XGroup, XStack, YStack, Sheet, Label, Input, AlertDialog } from 'tamagui'
 import { TextInput } from 'react-native-element-textinput';
 import filter from "lodash.filter"
-
-const PRESTA_LIST = [
-    { name: "Ousmane Tall", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash", category: "" },
-    { name: "Mango Fall", price: "5000", image: "", onPress: "", type: "Complet", payment: "Impaye" },
-    { name: "Bougah Jean", price: "2500", image: "", onPress: "", type: "simple", payment: "OM" },
-    { name: "Alassane Niang", price: "2500", image: "", onPress: "", type: "simple", payment: "Wave" },
-    { name: "Ndiogou Cisse", price: "5000", image: "", onPress: "", type: "Complet", payment: "Cash" },
-    { name: "Fallou Ba", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-    { name: "Kader Lo", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-    { name: "Ibrahim Kante", price: "5000", image: "", onPress: "", type: "Complet", payment: "Wave" },
-    { name: "Amadou Ba", price: "7500", image: "", onPress: "", type: "Complet +", payment: "Wave" }
-]
+import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../Util/AuthContext';
+import axios from 'axios';
+import { baseUrl } from '../Util/BaseUrl';
+import { useRoute } from '@react-navigation/native';
 
 const DetailsAbonneScreen = () => {
 
     const navigation = useNavigation();
-    const [data, setData] = useState(PRESTA_LIST);
+    const route = useRoute();
+    const { item } = route.params;
+    const [data, setData] = useState([]);
+    const [ogData, setOgData] = useState([]);
+    const [abonne, setAbonne] = useState();
     const [query, setQuery] = useState("");
+    const [montant, setMontant] = useState('');
+    const [user, setUser] = useAuth();
+
+    const [position, setPosition] = useState(0)
+    const [open, setOpen] = useState(false)
+    const [modal, setModal] = useState(true)
+    const [innerOpen, setInnerOpen] = useState(false)
+    const [snapPointsMode, setSnapPointsMode] = useState('percent')
+    const [mixedFitDemo, setMixedFitDemo] = useState(false)
+
+
+    const snapPoints = [50, 25]
 
     const handleSearch = (query) => {
         setQuery(query);
         const formattedQuery = query.toLowerCase();
         console.log("f query", formattedQuery)
-        if(formattedQuery === "" || formattedQuery === " "){
+        if (formattedQuery === "" || formattedQuery === " ") {
             console.log("here ")
-            setData(PRESTA_LIST);
+            setData();//set OG data
             return
         }
         const filteredData = filter(data, (presta) => {
@@ -53,42 +63,181 @@ const DetailsAbonneScreen = () => {
         setData(filteredData);
     }
 
-    const contains = ({name, price, payment}, query) => {
-        if(name.toLowerCase().includes(query) || price.toLowerCase().includes(query) || payment.toLowerCase().includes(query)){
+    const contains = ({ name, price, payment }, query) => {
+        if (name.toLowerCase().includes(query) || price.toLowerCase().includes(query) || payment.toLowerCase().includes(query)) {
             console.log("hit")
             return true;
         }
         return false;
     }
 
-    return (
-        <LinearGradient
-            style={styles.container}
-            colors={["white", "white", "white"]}
-            start={{ x: 0.5, y: 1 }}
-            end={{ x: 0, y: 0 }}
-        >
-            <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
+    const addVersement = async () => {
+        try {
+            const postData = {
+                data: {
+                    NomComplet: nom,
+                    Tel: tel,
+                    Email: email,
+                    DescriptoionAbonement: description,
+                    category_lavage: category,
+                    type_lavage: typeLavage,
+                    Description: description,
+                    montant: montant,
+                    article
+                }
+            };
 
-                <View style={styles.sectionTitle}>
-                    <Text style={{ color: "darkgrey" }}>Details Abonnés</Text>
-                    {/* <Text style={{ marginRight: "7%" }}>Ajouter dépense</Text> */}
+            if (category === 1) {
+                postData.data.aReirer = false;
+            } else {
+                postData.data.aReirer = null;
+            }
+
+            await axios.post(`${baseUrl}/api/abonnes`, postData, {
+                headers: { Authorization: `Bearer ${user?.token}` },
+            });
+            console.log('Successfully created a new ABONNE');
+            setModalVisible(true);
+            clearText();
+
+        } catch (err) {
+            console.error('Failed to CREATE ABONNE', err);
+        }
+    }
+
+    useFocusEffect(
+        React.useCallback(() => {
+            console.log("item forcast", item)
+            // const getAbonne = async () => {
+            //     try {
+            //         const { data } = await axios.get(`${baseUrl}/api/abonnes/${item?.id}?populate=*`, {
+            //             headers: { Authorization: `Bearer ${user?.token}` },
+            //         });
+            //         console.log('Successfully getAboone $$', data?.data);
+            //         setAbonne(data?.data);
+            //     } catch (err) {
+            //         console.error('Failed to get for this abonne', err);
+            //     }
+            // }
+
+            const getListPrestasAbonnes = async () => {
+                try {
+                    const { data } = await axios.get(`${baseUrl}/api/prestation-abonnes?populate=*&filters[abonne][id][$eqi]=${item?.id}`, {
+                        headers: { Authorization: `Bearer ${user?.token}` },
+                    });
+                    console.log('Successfully got the prestas for ABONNE $$', data?.data);
+                    setData(data?.data);
+                    setOgData(data?.data)
+                } catch (err) {
+                    console.error('Failed to get prestas for abonne', err);
+                }
+            }
+            getListPrestasAbonnes();
+        }, [])
+    );
+
+
+
+    return (
+        <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
+            <View style={styles.header}>
+                {/* <Image style={styles.avatar} source={AppImages.userImage} /> */}
+                <View style={{ flex: 1, marginHorizontal: 8 }}>
+                    <YStack>
+                        <View style={styles.dashTextBox}>
+                            <Text style={{ color: "darkgrey" }}>Nom Abonné(e)</Text>
+                            <Text style={styles.username}> {"Aloe"} {item?.attributes?.NomComplet}</Text>
+                        </View>
+                        <View >
+                            <Text style={{ color: "darkgrey" }}>Catégorie Lavage</Text>
+                            <Text style={styles.username}> {item?.attributes?.category_lavage?.data?.attributes?.name} </Text>
+                        </View>
+                    </YStack>
+                </View>
+                <View style={{ flex: 1, marginHorizontal: 8, alignItems: "flex-end" }}>
+                    <YStack>
+                        <View style={styles.dashTextBox}>
+                            <Text style={{ color: "darkgrey" }}>Type Lavage</Text>
+                            <Text style={styles.username}>{item?.attributes?.type_lavage?.data?.attributes?.title}</Text>
+                        </View>
+                        <View >
+                            <Text style={{ color: "darkgrey" }}>Solde</Text>
+                            <Text style={styles.username}> {item?.attributes?.solde} </Text>
+                        </View>
+                    </YStack>
                 </View>
 
-                <View style={styles.dayInfoContainer}>
-                    <View style={[styles.boxContainer, { width: "57%" }]}>
-                        <View style={styles.iconGroup}>
-                            <View style={styles.iconOverlapGroup}>
-                                <View style={styles.ellipse} />
-                                <Entypo name="plus" color="orange" size={30} />
+            </View>
+
+            <View style={styles.sectionTitle}>
+                <Text style={{ color: "darkgrey" }}>Details Abonnés</Text>
+            </View>
+
+            <View style={styles.dayInfoContainer}>
+                <AlertDialog style={[{ margin: 9 }, styles.shadowStyle]} native>
+                    <AlertDialog.Trigger asChild>
+                        <XStack>
+                            <View style={[styles.boxContainer]}>
+                                <View style={styles.iconGroup}>
+                                    <View style={styles.iconOverlapGroup}>
+                                        <View style={styles.ellipse} />
+                                        <Entypo name="plus" color="orange" size={30} />
+                                    </View>
+                                </View>
+                                <View style={styles.boxInfoVertical}>
+                                    <Text style={styles.boxInfoVerticalTitle}>Nouvelle Prestation</Text>
+                                </View>
                             </View>
-                        </View>
-                        <View style={styles.boxInfoVertical}>
-                            {/* <Text style={styles.boxInfoVerticalTitle}>Nombre Abonnés</Text> */}
-                            <Text style={styles.boxInfoVerticalContent}>Nouvelle Prestation</Text>
-                        </View>
-                    </View>
-                    <View style={[styles.boxContainer, { width: "35%" }]}>
+                        </XStack>
+                    </AlertDialog.Trigger>
+
+                    <AlertDialog.Portal>
+                        <AlertDialog.Overlay
+                            key="overlay"
+                            animation="quick"
+                            opacity={0.5}
+                            enterStyle={{ opacity: 0 }}
+                            exitStyle={{ opacity: 0 }}
+                        />
+                        <AlertDialog.Content
+                            bordered
+                            elevate
+                            key="content"
+                            animation={[
+                                'quick',
+                                {
+                                    opacity: {
+                                        overshootClamping: true,
+                                    },
+                                },
+                            ]}
+                            enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+                            exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+                            x={0}
+                            scale={1}
+                            opacity={1}
+                            y={0}
+                        >
+                            <YStack space>
+                                <AlertDialog.Title>Confirmez vous la prestation?</AlertDialog.Title>
+                                <AlertDialog.Description>
+                                    En validant vous confirmez une nouvelle prestation pour l'abonné Aloe Black Aujourd'hui
+                                </AlertDialog.Description>
+
+                                <XStack space="$3" justifyContent="flex-end">
+                                    <AlertDialog.Cancel asChild>
+                                        <Button title="Annuler">Annuler</Button>
+                                    </AlertDialog.Cancel>
+                                    <AlertDialog.Action asChild>
+                                        <Button theme="active" title="Valider">Valider</Button>
+                                    </AlertDialog.Action>
+                                </XStack>
+                            </YStack>
+                        </AlertDialog.Content>
+                    </AlertDialog.Portal>
+                </AlertDialog>
+                <TouchableOpacity onPress={() => setOpen(true)}>
+                    <View style={[styles.boxContainer]}>
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
                                 <View style={styles.ellipse} />
@@ -96,40 +245,73 @@ const DetailsAbonneScreen = () => {
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
-                            {/* <Text style={styles.boxInfoVerticalTitle}>Solde</Text> */}
-                            <Text style={styles.boxInfoVerticalContent}>Versement</Text>
+                            <Text style={styles.boxInfoVerticalTitle}>Versement</Text>
                         </View>
                     </View>
-                </View>
+                </TouchableOpacity>
+            </View>
 
-                <View style={[styles.sectionTitle, { marginTop: 16 }]}>
-                    <Text style={{ color: "darkgrey" }}>Liste des Prestations du Mois:</Text>
-                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 15 Abonnés</Text>
-                </View>
+            <View style={[styles.sectionTitle, { marginTop: 16 }]}>
+                <Text style={{ color: "darkgrey" }}>Liste des Prestations du Mois:</Text>
+                <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 15 Prestations</Text>
+            </View>
 
-                <FlashList
-                    ListHeaderComponent={<TextInput
-                        value={query}
-                        style={styles.input}
-                        inputStyle={styles.inputStyle}
-                        labelStyle={styles.labelStyle}
-                        placeholderStyle={styles.placeholderStyle}
-                        textErrorStyle={styles.textErrorStyle}
-                        label="Rechercher dans la liste"
-                        placeholder="Rechercher par le nom, montant, ou type paiement"
-                        placeholderTextColor="gray"
-                        onChangeText={text => {
-                            handleSearch(text);
-                        }}
-                    />}
-                    data={data}
-                    renderItem={(item) => <ListCard item={item} />}
-                    estimatedItemSize={20}
-                    contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
-                    onEndReachedThreshold={0.2}
+            <FlashList
+                ListHeaderComponent={<TextInput
+                    value={query}
+                    style={styles.input}
+                    inputStyle={styles.inputStyle}
+                    labelStyle={styles.labelStyle}
+                    placeholderStyle={styles.placeholderStyle}
+                    textErrorStyle={styles.textErrorStyle}
+                    label="Rechercher dans la liste"
+                    placeholder="Rechercher par le nom, montant, ou type paiement"
+                    placeholderTextColor="gray"
+                    onChangeText={text => {
+                        handleSearch(text);
+                    }}
+                />}
+                data={data}
+                renderItem={(item) => <ListCardPrestaAbonne item={item} />}
+                estimatedItemSize={20}
+                contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
+                onEndReachedThreshold={0.2}
+            />
+            <Sheet
+                forceRemoveScrollEnabled={open}
+                modal={modal}
+                open={open}
+                onOpenChange={setOpen}
+                snapPoints={snapPoints}
+                snapPointsMode={snapPointsMode}
+                dismissOnSnapToBottom
+                position={position}
+                onPositionChange={setPosition}
+                zIndex={100_000}
+                animation=""
+                moveOnKeyboardChange={true}
+            >
+                <Sheet.Overlay
+                    animation="lazy"
+                    enterStyle={{ opacity: 0 }}
+                    exitStyle={{ opacity: 0 }}
                 />
-            </SafeAreaView>
-        </LinearGradient>
+                <Sheet.Handle />
+                <Sheet.Frame padding="$4" space="$5">
+                    <YStack>
+                        <Label htmlFor="montant">
+                            Montant du Versement
+                        </Label>
+                        <Input size="$4" id="montant" placeholder="Montant" value={montant} onChange={setMontant} style={styles.shadowStyle} />
+                        <Button
+                            title='Enregistrer'
+                            color="#ff2e2e"
+
+                        />
+                    </YStack>
+                </Sheet.Frame>
+            </Sheet>
+        </SafeAreaView>
     );
 };
 
@@ -298,22 +480,23 @@ const styles = StyleSheet.create({
     },
     boxInfoVerticalTitle: {
         color: '#222222',
-        fontFamily: 'DM Sans-Regular',
+        // fontFamily: 'DM Sans-Regular',
         fontSize: 13,
         fontWeight: '400',
         letterSpacing: 0,
-        lineHeight: 'normal',
+        lineHeight: 1,
         marginTop: -1,
         opacity: 0.4,
         position: 'relative',
     },
     boxInfoVerticalContent: {
         color: '#222222',
-        fontFamily: 'DM Sans-Bold',
+        // fontFamily: 'DM Sans-Bold',
         fontSize: 20,
         fontWeight: '700',
         letterSpacing: 0,
-        lineHeight: 'normal',
+        // lineHeight: 'normal',
+        lineHeight: 1,
         position: 'relative',
     },
 
@@ -340,9 +523,23 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.17,
         shadowRadius: 3.05,
         elevation: 4
-      },
-      inputStyle: { fontSize: 16 },
-      labelStyle: { fontSize: 14 },
-      placeholderStyle: { fontSize: 16 },
-      textErrorStyle: { fontSize: 16 },
+    },
+    inputStyle: { fontSize: 16 },
+    labelStyle: { fontSize: 14 },
+    placeholderStyle: { fontSize: 16 },
+    textErrorStyle: { fontSize: 16 },
+    shadowStyle: {
+        shadowColor: "#ff2e2e",
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.17,
+        shadowRadius: 2.05,
+        elevation: 4,
+        backgroundColor: "white"
+    },
+    dashTextBox: {
+        paddingBottom: 5
+    }
 });
