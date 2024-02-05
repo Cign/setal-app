@@ -8,16 +8,14 @@ import {
     TouchableOpacity,
     SafeAreaView,
     Platform,
-    Button,
+    Button
 } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { boxStyle } from '../Util/BaseStyles';
 import { FlashList } from "@shopify/flash-list";
 import ListCardPrestaAbonne from '../Components/ListCardPrestaAbonne';
-import { XGroup, XStack, YStack, Sheet, Label, Input, AlertDialog } from 'tamagui'
+import { XStack, YStack, Sheet, Label, Input, AlertDialog } from 'tamagui'
 import { TextInput } from 'react-native-element-textinput';
 import filter from "lodash.filter"
 import { useFocusEffect } from '@react-navigation/native';
@@ -25,6 +23,8 @@ import { useAuth } from '../Util/AuthContext';
 import axios from 'axios';
 import { baseUrl } from '../Util/BaseUrl';
 import { useRoute } from '@react-navigation/native';
+import SuccessModal from '../Util/SuccessModal';
+import ActionModal from '../Components/ActionModal'
 
 const DetailsAbonneScreen = () => {
 
@@ -33,7 +33,7 @@ const DetailsAbonneScreen = () => {
     const { item } = route.params;
     const [data, setData] = useState([]);
     const [ogData, setOgData] = useState([]);
-    const [abonne, setAbonne] = useState();
+    const [abonne, setAbonne] = useState({});
     const [query, setQuery] = useState("");
     const [montant, setMontant] = useState('');
     const [user, setUser] = useAuth();
@@ -41,12 +41,13 @@ const DetailsAbonneScreen = () => {
     const [position, setPosition] = useState(0)
     const [open, setOpen] = useState(false)
     const [modal, setModal] = useState(true)
-    const [innerOpen, setInnerOpen] = useState(false)
     const [snapPointsMode, setSnapPointsMode] = useState('percent')
-    const [mixedFitDemo, setMixedFitDemo] = useState(false)
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
 
 
-    const snapPoints = [50, 25]
+
+    const snapPoints = [50]
 
     const handleSearch = (query) => {
         setQuery(query);
@@ -54,7 +55,7 @@ const DetailsAbonneScreen = () => {
         console.log("f query", formattedQuery)
         if (formattedQuery === "" || formattedQuery === " ") {
             console.log("here ")
-            setData();//set OG data
+            setData(ogData);//set OG data
             return
         }
         const filteredData = filter(data, (presta) => {
@@ -75,29 +76,18 @@ const DetailsAbonneScreen = () => {
         try {
             const postData = {
                 data: {
-                    NomComplet: nom,
-                    Tel: tel,
-                    Email: email,
-                    DescriptoionAbonement: description,
-                    category_lavage: category,
-                    type_lavage: typeLavage,
-                    Description: description,
-                    montant: montant,
-                    article
+                    montant,
+                    abonne: item?.id
                 }
             };
 
-            if (category === 1) {
-                postData.data.aReirer = false;
-            } else {
-                postData.data.aReirer = null;
-            }
-
-            await axios.post(`${baseUrl}/api/abonnes`, postData, {
+            await axios.post(`${baseUrl}/api/encaissement-abonnes`, postData, {
                 headers: { Authorization: `Bearer ${user?.token}` },
             });
             console.log('Successfully created a new ABONNE');
-            setModalVisible(true);
+            setModalVisible(false);
+            setIsModalVisible(true);
+            setOpen(false);
             clearText();
 
         } catch (err) {
@@ -105,20 +95,28 @@ const DetailsAbonneScreen = () => {
         }
     }
 
+    const addPrestation = async () => {
+        try {
+            const postData = {
+                data: {
+                    commentaire: "normal",
+                    abonne: item?.id
+                }
+            };
+            await axios.post(`${baseUrl}/api/prestation-abonnes`, postData, {
+                headers: { Authorization: `Bearer ${user?.token}` },
+            });
+            console.log('Successfully created a new ABONNE PRESTATION');
+            setModalVisible(false)
+            setIsModalVisible(true);
+        } catch (err) {
+            console.error('Failed to CREATE ABONNE PRESTATION', err);
+        }
+    }
+
     useFocusEffect(
         React.useCallback(() => {
             console.log("item forcast", item)
-            // const getAbonne = async () => {
-            //     try {
-            //         const { data } = await axios.get(`${baseUrl}/api/abonnes/${item?.id}?populate=*`, {
-            //             headers: { Authorization: `Bearer ${user?.token}` },
-            //         });
-            //         console.log('Successfully getAboone $$', data?.data);
-            //         setAbonne(data?.data);
-            //     } catch (err) {
-            //         console.error('Failed to get for this abonne', err);
-            //     }
-            // }
 
             const getListPrestasAbonnes = async () => {
                 try {
@@ -136,10 +134,20 @@ const DetailsAbonneScreen = () => {
         }, [])
     );
 
-
+    const clearText = () => {
+        setMontant('');
+    }
 
     return (
         <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
+            <ActionModal
+                isVisible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                onConfirm={addPrestation}
+                modalTitle="Confirmez vous la prestation?"
+                modalText="En validant vous confirmez une nouvelle prestation pour l'abonné Aloe Black Aujourd'hui"
+            />
+            <SuccessModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} />
             <View style={styles.header}>
                 {/* <Image style={styles.avatar} source={AppImages.userImage} /> */}
                 <View style={{ flex: 1, marginHorizontal: 8 }}>
@@ -174,68 +182,19 @@ const DetailsAbonneScreen = () => {
             </View>
 
             <View style={styles.dayInfoContainer}>
-                <AlertDialog style={[{ margin: 9 }, styles.shadowStyle]} native>
-                    <AlertDialog.Trigger asChild>
-                        <XStack>
-                            <View style={[styles.boxContainer]}>
-                                <View style={styles.iconGroup}>
-                                    <View style={styles.iconOverlapGroup}>
-                                        <View style={styles.ellipse} />
-                                        <Entypo name="plus" color="orange" size={30} />
-                                    </View>
-                                </View>
-                                <View style={styles.boxInfoVertical}>
-                                    <Text style={styles.boxInfoVerticalTitle}>Nouvelle Prestation</Text>
-                                </View>
+                <TouchableOpacity onPress={() => setModalVisible(true)}>
+                    <View style={[styles.boxContainer]}>
+                        <View style={styles.iconGroup}>
+                            <View style={styles.iconOverlapGroup}>
+                                <View style={styles.ellipse} />
+                                <Entypo name="plus" color="orange" size={30} />
                             </View>
-                        </XStack>
-                    </AlertDialog.Trigger>
-
-                    <AlertDialog.Portal>
-                        <AlertDialog.Overlay
-                            key="overlay"
-                            animation="quick"
-                            opacity={0.5}
-                            enterStyle={{ opacity: 0 }}
-                            exitStyle={{ opacity: 0 }}
-                        />
-                        <AlertDialog.Content
-                            bordered
-                            elevate
-                            key="content"
-                            animation={[
-                                'quick',
-                                {
-                                    opacity: {
-                                        overshootClamping: true,
-                                    },
-                                },
-                            ]}
-                            enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-                            exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-                            x={0}
-                            scale={1}
-                            opacity={1}
-                            y={0}
-                        >
-                            <YStack space>
-                                <AlertDialog.Title>Confirmez vous la prestation?</AlertDialog.Title>
-                                <AlertDialog.Description>
-                                    En validant vous confirmez une nouvelle prestation pour l'abonné Aloe Black Aujourd'hui
-                                </AlertDialog.Description>
-
-                                <XStack space="$3" justifyContent="flex-end">
-                                    <AlertDialog.Cancel asChild>
-                                        <Button title="Annuler">Annuler</Button>
-                                    </AlertDialog.Cancel>
-                                    <AlertDialog.Action asChild>
-                                        <Button theme="active" title="Valider">Valider</Button>
-                                    </AlertDialog.Action>
-                                </XStack>
-                            </YStack>
-                        </AlertDialog.Content>
-                    </AlertDialog.Portal>
-                </AlertDialog>
+                        </View>
+                        <View style={styles.boxInfoVertical}>
+                            <Text style={styles.boxInfoVerticalTitle}>Nouvelle Prestation</Text>
+                        </View>
+                    </View>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={() => setOpen(true)}>
                     <View style={[styles.boxContainer]}>
                         <View style={styles.iconGroup}>
@@ -250,27 +209,26 @@ const DetailsAbonneScreen = () => {
                     </View>
                 </TouchableOpacity>
             </View>
-
             <View style={[styles.sectionTitle, { marginTop: 16 }]}>
                 <Text style={{ color: "darkgrey" }}>Liste des Prestations du Mois:</Text>
                 <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 15 Prestations</Text>
             </View>
-
             <FlashList
-                ListHeaderComponent={<TextInput
-                    value={query}
-                    style={styles.input}
-                    inputStyle={styles.inputStyle}
-                    labelStyle={styles.labelStyle}
-                    placeholderStyle={styles.placeholderStyle}
-                    textErrorStyle={styles.textErrorStyle}
-                    label="Rechercher dans la liste"
-                    placeholder="Rechercher par le nom, montant, ou type paiement"
-                    placeholderTextColor="gray"
-                    onChangeText={text => {
-                        handleSearch(text);
-                    }}
-                />}
+                ListHeaderComponent={
+                    <TextInput
+                        value={query}
+                        style={styles.input}
+                        inputStyle={styles.inputStyle}
+                        labelStyle={styles.labelStyle}
+                        placeholderStyle={styles.placeholderStyle}
+                        textErrorStyle={styles.textErrorStyle}
+                        label="Rechercher dans la liste"
+                        placeholder="Rechercher par le nom, montant, immatriculation ou type paiement"
+                        placeholderTextColor="gray"
+                        onChangeText={text => {
+                            handleSearch(text);
+                        }}
+                    />}
                 data={data}
                 renderItem={(item) => <ListCardPrestaAbonne item={item} />}
                 estimatedItemSize={20}
@@ -302,11 +260,11 @@ const DetailsAbonneScreen = () => {
                         <Label htmlFor="montant">
                             Montant du Versement
                         </Label>
-                        <Input size="$4" id="montant" placeholder="Montant" value={montant} onChange={setMontant} style={styles.shadowStyle} />
+                        <Input size="$4" id="montant" placeholder="Montant" value={montant} onChangeText={setMontant} style={styles.shadowStyle} />
                         <Button
                             title='Enregistrer'
                             color="#ff2e2e"
-
+                            onPress={addVersement}
                         />
                     </YStack>
                 </Sheet.Frame>

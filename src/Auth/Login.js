@@ -29,8 +29,6 @@ const LoginScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useAuth();
   const [focus, setFocus] = useState(false);
-
-
   
   // Define the handleLogin function
   const handleLogin = () => {

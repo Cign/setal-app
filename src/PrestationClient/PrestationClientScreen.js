@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -21,7 +21,6 @@ import axios from 'axios';
 import Colors from '../Util/static/Colors';
 import SuccessModal from '../Util/SuccessModal';
 
-
 const PRESTA_LIST = [
     { name: "Ousmane Tall", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash", category: "" },
     { name: "Mango Fall", price: "5000", image: "", onPress: "", type: "Complet", payment: "Impaye" },
@@ -43,8 +42,8 @@ const PrestationClientScreen = () => {
 
     const navigate = useNavigation();
     const [data, setData] = useState(_generateArray(0, 10));
-    const [montantDepense, setMontantDepense] = useState(_generateArray(0, 10));
-    const [objetDepense, setObjetDepense] = useState(_generateArray(0, 10));
+    const [montantDepense, setMontantDepense] = useState("");
+    const [objetDepense, setObjetDepense] = useState("");
     const [position, setPosition] = useState(0)
     const [open, setOpen] = useState(false)
     const [modal, setModal] = useState(true)
@@ -77,6 +76,7 @@ const PrestationClientScreen = () => {
     );
 
     const addDepense = async () => {
+        
         try {
             const postData = {
                 data: {
@@ -98,7 +98,6 @@ const PrestationClientScreen = () => {
             console.error('Failed to CREATE DEPENSE', err);
         }
     }
-
 
     const snapPoints = [50, 25]
 
@@ -180,12 +179,7 @@ const PrestationClientScreen = () => {
                     renderItem={(item) => <ListCard item={item} />}
                     estimatedItemSize={20}
                     contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
-                    onEndReached={() => {
-                        // Since FlatList is a pure component, data reference should change for a render
-                        // const elems = [...data];
-                        // elems.push(..._generateArray(elems.length, 6));
-                        // setData(elems)
-                    }}
+
                     onEndReachedThreshold={0.2}
                 />
                 <Sheet

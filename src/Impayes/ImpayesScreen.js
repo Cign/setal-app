@@ -13,13 +13,16 @@ import {
 } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { boxStyle } from '../Util/BaseStyles';
 import { FlashList } from "@shopify/flash-list";
-import ListCard from '../Components/ListCard';
-import { XGroup, XStack, YStack, Sheet, H5, Paragraph } from 'tamagui'
+import ListCardAction from '../Components/ListCardAction';
 import { TextInput } from 'react-native-element-textinput';
-import filter from "lodash.filter"
+import filter from "lodash.filter";
+import { useFocusEffect } from '@react-navigation/native';
+import { useAuth } from '../Util/AuthContext';
+import axios from 'axios';
+import { baseUrl } from '../Util/BaseUrl';
+import SuccessModal from '../Util/SuccessModal';
+import { XGroup, XStack, YStack, Sheet, H5, Paragraph } from 'tamagui'
 
 const PRESTA_LIST = [
   { name: "Ousmane Tall", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash", category: "" },
@@ -41,18 +44,16 @@ const ImpayeScreen = () => {
   }
 
   const navigation = useNavigation();
-  const [data, setData] = useState(PRESTA_LIST);
+  const [data, setData] = useState("");
   const [query, setQuery] = useState("");
-
+  const [user, setUser] = useAuth();
   const [position, setPosition] = useState(0)
   const [open, setOpen] = useState(false)
   const [modal, setModal] = useState(true)
-  const [innerOpen, setInnerOpen] = useState(false)
+  const [prestaToUpdate, setPrestaToUpdate] = useState({})
   const [snapPointsMode, setSnapPointsMode] = useState('percent')
-  const [mixedFitDemo, setMixedFitDemo] = useState(false)
-
-
   const snapPoints = [50, 25]
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleSearch = (query) => {
     setQuery(query);
@@ -77,15 +78,64 @@ const ImpayeScreen = () => {
     return false;
   }
 
-  const confirmPay = (item) => {
-    // set the value at montant field on the coresponding prestation id
+  const openModal = (item) => {
+    console.log("obj", item?.item)
     setOpen(true)
-
+    setPrestaToUpdate(item?.item)
   }
+
+  const confirmPay = async () => {
+    // set the value at montant field on the coresponding prestation id
+
+    try {
+      const postData = {
+        data: {
+          // montant: montant,
+          // mode_paiement: modePaiement,
+          // Versement: encaissement,
+          aPaye: true,
+          // employe: user?.id,
+        }
+      };
+
+      // if (category === 1) {
+      //   postData.data.aReirer = false;
+      // } else {
+      //   postData.data.aReirer = null;
+      // }
+      await axios.put(`${baseUrl}/api/prestations/${prestaToUpdate?.id}`, postData, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      console.log('Successfully UPDATED a new PRESTATION');
+      setOpen(false);
+      setIsModalVisible(true);
+      setPrestaToUpdate({})
+    } catch (err) {
+      console.error('Failed to UPDATE PRESTA', err);
+    }
+  }
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const getImpayes = async () => {
+        try {
+          console.log('Trying hard', user);
+          const { data } = await axios.get(`${baseUrl}/api/prestations?populate=*&filters[aPaye]=false`, {
+            headers: { Authorization: `Bearer ${user?.token}` },
+          });
+          console.log('Successfully got the prestas IMPAYES $$', data?.data);
+          setData(data?.data);
+        } catch (err) {
+          console.error('Failed to get IMPAYES', err);
+        }
+      }
+      getImpayes();
+    }, [])
+  );
 
   return (
     <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
-
+      <SuccessModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} />
       <View style={styles.dayInfoContainer}>
         <View style={[styles.boxContainer, { width: "90%" }]}>
           <View style={styles.iconGroup}>
@@ -122,7 +172,7 @@ const ImpayeScreen = () => {
           }}
         />}
         data={data}
-        renderItem={(item) => <ListCard item={item} onPressAction={confirmPay(item)} />}
+        renderItem={(item) => <ListCardAction item={item} screen={"Impaye"} onPressAction={() => openModal(item)} />}
         estimatedItemSize={20}
         contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
         onEndReachedThreshold={0.2}
@@ -162,7 +212,7 @@ const ImpayeScreen = () => {
               <Button
                 title='Oui'
                 color="#ff2e2e"
-
+                onPress={confirmPay}
               />
             </XStack>
 
