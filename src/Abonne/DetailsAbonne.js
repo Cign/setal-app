@@ -8,14 +8,13 @@ import {
     TouchableOpacity,
     SafeAreaView,
     Platform,
-    Button
 } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { FlashList } from "@shopify/flash-list";
 import ListCardPrestaAbonne from '../Components/ListCardPrestaAbonne';
-import { XStack, YStack, Sheet, Label, Input, AlertDialog } from 'tamagui'
+import { XStack, YStack, Sheet, Label, Input, AlertDialog, Button } from 'tamagui'
 import { TextInput } from 'react-native-element-textinput';
 import filter from "lodash.filter"
 import { useFocusEffect } from '@react-navigation/native';
@@ -25,6 +24,7 @@ import { baseUrl } from '../Util/BaseUrl';
 import { useRoute } from '@react-navigation/native';
 import SuccessModal from '../Util/SuccessModal';
 import ActionModal from '../Components/ActionModal'
+import Colors from '../Util/static/Colors';
 
 const DetailsAbonneScreen = () => {
 
@@ -33,7 +33,7 @@ const DetailsAbonneScreen = () => {
     const { item } = route.params;
     const [data, setData] = useState([]);
     const [ogData, setOgData] = useState([]);
-    const [abonne, setAbonne] = useState({});
+    const [countAbonnePrestas, setAbonnePrestas] = useState(0);
     const [query, setQuery] = useState("");
     const [montant, setMontant] = useState('');
     const [user, setUser] = useAuth();
@@ -44,8 +44,6 @@ const DetailsAbonneScreen = () => {
     const [snapPointsMode, setSnapPointsMode] = useState('percent')
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-
-
 
     const snapPoints = [50]
 
@@ -64,8 +62,8 @@ const DetailsAbonneScreen = () => {
         setData(filteredData);
     }
 
-    const contains = ({ name, price, payment }, query) => {
-        if (name.toLowerCase().includes(query) || price.toLowerCase().includes(query) || payment.toLowerCase().includes(query)) {
+    const contains = ({ attributes: { commentaire, createdAt } }, query) => {
+        if (commentaire?.toLowerCase().includes(query) || createdAt?.toLowerCase().includes(query)) {
             console.log("hit")
             return true;
         }
@@ -85,6 +83,7 @@ const DetailsAbonneScreen = () => {
                 headers: { Authorization: `Bearer ${user?.token}` },
             });
             console.log('Successfully created a new ABONNE');
+            updateAbonneSolde();
             setModalVisible(false);
             setIsModalVisible(true);
             setOpen(false);
@@ -92,6 +91,24 @@ const DetailsAbonneScreen = () => {
 
         } catch (err) {
             console.error('Failed to CREATE ABONNE', err);
+        }
+    }
+
+    const updateAbonneSolde = async () => {
+        try {
+            let newSolde = parseInt(item?.attributes?.Solde) + parseInt(montant);
+            const postData = {
+                data: {
+                    montant,
+                    Solde: String(newSolde)
+                }
+            };
+            await axios.put(`${baseUrl}/api/abonnes/${item?.id}`, postData, {
+                headers: { Authorization: `Bearer ${user?.token}` },
+            });
+            console.log('Successfully update ABONNE SOLDE');
+        } catch (err) {
+            console.error('Failed to update ABONNE SOLDE', err);
         }
     }
 
@@ -126,6 +143,7 @@ const DetailsAbonneScreen = () => {
                     console.log('Successfully got the prestas for ABONNE $$', data?.data);
                     setData(data?.data);
                     setOgData(data?.data)
+                    setAbonnePrestas(data?.meta?.pagination?.total)
                 } catch (err) {
                     console.error('Failed to get prestas for abonne', err);
                 }
@@ -145,7 +163,7 @@ const DetailsAbonneScreen = () => {
                 onClose={() => setModalVisible(false)}
                 onConfirm={addPrestation}
                 modalTitle="Confirmez vous la prestation?"
-                modalText="En validant vous confirmez une nouvelle prestation pour l'abonné Aloe Black Aujourd'hui"
+                modalText={`En validant vous confirmez une nouvelle prestation pour l'abonné ${item?.attributes?.NomComplet} Aujourd'hui`}
             />
             <SuccessModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} />
             <View style={styles.header}>
@@ -154,7 +172,7 @@ const DetailsAbonneScreen = () => {
                     <YStack>
                         <View style={styles.dashTextBox}>
                             <Text style={{ color: "darkgrey" }}>Nom Abonné(e)</Text>
-                            <Text style={styles.username}> {"Aloe"} {item?.attributes?.NomComplet}</Text>
+                            <Text style={styles.username}> {item?.attributes?.NomComplet}</Text>
                         </View>
                         <View >
                             <Text style={{ color: "darkgrey" }}>Catégorie Lavage</Text>
@@ -170,7 +188,7 @@ const DetailsAbonneScreen = () => {
                         </View>
                         <View >
                             <Text style={{ color: "darkgrey" }}>Solde</Text>
-                            <Text style={styles.username}> {item?.attributes?.solde} </Text>
+                            <Text style={styles.username}> {item?.attributes?.Solde} </Text>
                         </View>
                     </YStack>
                 </View>
@@ -187,7 +205,7 @@ const DetailsAbonneScreen = () => {
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
                                 <View style={styles.ellipse} />
-                                <Entypo name="plus" color="orange" size={30} />
+                                <Entypo name="plus" color={Colors.baseColor} size={30} />
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
@@ -200,7 +218,7 @@ const DetailsAbonneScreen = () => {
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
                                 <View style={styles.ellipse} />
-                                <FontAwesome5 name="hand-holding-usd" size={24} color="black" />
+                                <FontAwesome5 name="hand-holding-usd" size={24} color={Colors.baseColor} />
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
@@ -211,7 +229,7 @@ const DetailsAbonneScreen = () => {
             </View>
             <View style={[styles.sectionTitle, { marginTop: 16 }]}>
                 <Text style={{ color: "darkgrey" }}>Liste des Prestations du Mois:</Text>
-                <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 15 Prestations</Text>
+                <Text style={{ fontWeight: "bold", marginRight: "7%" }}> {countAbonnePrestas} Prestation(s)</Text>
             </View>
             <FlashList
                 ListHeaderComponent={
@@ -262,10 +280,13 @@ const DetailsAbonneScreen = () => {
                         </Label>
                         <Input size="$4" id="montant" placeholder="Montant" value={montant} onChangeText={setMontant} style={styles.shadowStyle} />
                         <Button
-                            title='Enregistrer'
-                            color="#ff2e2e"
+                            color={Colors.background}
+                            backgroundColor={Colors.baseColor}
                             onPress={addVersement}
-                        />
+                            marginTop={10}
+                        >
+                            Enregistrer
+                        </Button>
                     </YStack>
                 </Sheet.Frame>
             </Sheet>
@@ -442,7 +463,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '400',
         letterSpacing: 0,
-        lineHeight: 1,
+        // lineHeight: 1,
         marginTop: -1,
         opacity: 0.4,
         position: 'relative',
@@ -454,7 +475,6 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         letterSpacing: 0,
         // lineHeight: 'normal',
-        lineHeight: 1,
         position: 'relative',
     },
 

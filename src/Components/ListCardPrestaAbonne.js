@@ -3,8 +3,11 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { FontAwesome5 } from '@expo/vector-icons';
+import CL from '../Util/static/CategoryLavage';
+import Colors from '../Util/static/Colors';
 
-const ListCardPrestaAbonne = ({ item: {item}, action, onPressAction }) => {
+const ListCardPrestaAbonne = ({ item: { item }, action, onPressAction }) => {
 
   const navigation = useNavigation();
 
@@ -13,28 +16,56 @@ const ListCardPrestaAbonne = ({ item: {item}, action, onPressAction }) => {
   }, [])
 
   const onPress = () => {
-    if (action?.clickable) {navigation.navigate(action?.destination, {
-      item
-    })}
+    if (action?.clickable) {
+      navigation.navigate(action?.destination, {
+        item
+      })
     }
+  }
+
+  const ReturnIcon = () => {
+    let icon;
+
+    switch (item?.attributes?.category_lavage?.data?.attributes?.name) {
+      case CL.tapis:
+        icon = <FontAwesome5 name="scroll" size={24} color={Colors.background} />;
+        break;
+      case CL.voiture:
+        icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
+        break;
+      case CL.moto:
+        icon = <FontAwesome5 name="motorcycle" size={24} color={Colors.background} />;
+        break;
+      case CL.local:
+        icon = <FontAwesome5 name="building" size={24} color={Colors.background} />;
+        break;
+      default:
+        icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
+    }
+    return (
+      <>
+        {icon}
+      </>
+    );
+  }
 
   return (
-    <TouchableOpacity onPress={onPressAction ? onPressAction: onPress}>
+    <TouchableOpacity onPress={onPressAction ? onPressAction : onPress}>
       <View style={styles.container}>
         <View style={styles.card}>
           <View style={styles.logo}>
-            <Ionicons name="car-sport-outline" size={24} color="black" />
+            <ReturnIcon />
           </View>
           <View style={styles.mcontainer}>
+            <Text style={styles.coinSymbol}>{"Effectué le: "}</Text>
             <Text
               adjustsFontSizeToFit
               numberOfLines={2}
               style={styles.coinName}>
-              {item?.attributes?.createdAt}
+              {new Date(item?.attributes?.createdAt)?.toLocaleDateString('fr-FR')}
             </Text>
-            {/* <Text style={styles.coinSymbol}>{item?.attributes?.type_lavage?.data?.attributes?.title?.toUpperCase()}</Text> */}
           </View>
-          <View style={styles.rcontainer}>
+          {/* <View style={styles.rcontainer}>
             <View style={styles.bgprice}>
               <Text style={styles.price}>{item?.attributes?.commentaire}</Text>
             </View>
@@ -45,7 +76,7 @@ const ListCardPrestaAbonne = ({ item: {item}, action, onPressAction }) => {
               ]}>
               {item?.attributes?.createdAt}
             </Text>
-          </View>
+          </View> */}
         </View>
       </View>
     </TouchableOpacity>
@@ -105,7 +136,7 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     alignSelf: 'center',
-    backgroundColor: "#CF4600",
+    backgroundColor: Colors.baseColor,
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',

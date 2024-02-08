@@ -1,5 +1,7 @@
 import React from 'react';
-import { Modal, StyleSheet, Text, View, Button } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
+import { Button } from "tamagui"
+import Colors from '../Util/static/Colors';
 
 const CustomModal = ({ isVisible, onClose, onConfirm, modalTitle, modalText }) => {
   return (
@@ -14,8 +16,27 @@ const CustomModal = ({ isVisible, onClose, onConfirm, modalTitle, modalText }) =
           <Text style={styles.modalTitle}>{modalTitle}</Text>
           <Text style={styles.modalText}>{modalText}</Text>
           <View style={styles.buttonContainer}>
-            <Button title="Annuler" onPress={onClose} />
-            <Button title="Valider" onPress={onConfirm} />
+            <Button
+              size={"$3"}
+              style={{ marginRight: 6, marginVertical: 10 }}
+              focusStyle={{ outlineColor: Colors.baseColor }}
+              backgroundColor={Colors.background}
+              minWidth={90}
+              variant='outlined'
+              onPress={onClose}
+            >
+              Non
+            </Button>
+            <Button
+              size={"$3"}
+              color="#fff"
+              onPress={onConfirm}
+              backgroundColor={Colors.baseColor}
+              style={{ marginVertical: 10, marginHorizontal: 6 }}
+              minWidth={90}
+            >
+              Oui
+            </Button>
           </View>
         </View>
       </View>
@@ -47,7 +68,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     width: '100%',
     marginTop: 15,
   },

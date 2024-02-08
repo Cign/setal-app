@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import Entypo from 'react-native-vector-icons/Entypo';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { FontAwesome5 } from '@expo/vector-icons';
+import CL from '../Util/static/CategoryLavage';
+import Colors from '../Util/static/Colors';
 
 // item: { name, price, image, onPress, date, change }
 
-const SmallCard = ({ item: {item}, action, onPressAction }) => {
+const SmallCard = ({ item: { item }, action, onPressAction }) => {
 
   const navigation = useNavigation();
 
@@ -15,17 +17,45 @@ const SmallCard = ({ item: {item}, action, onPressAction }) => {
   }, [])
 
   const onPress = () => {
-    if (action?.clickable) {navigation.navigate(action?.destination, {
-      item
-    })}
+    if (action?.clickable) {
+      navigation.navigate(action?.destination, {
+        item
+      })
     }
+  }
+
+  const ReturnIcon = () => {
+    let icon;
+
+    switch (item?.attributes?.category_lavage?.data?.attributes?.name) {
+      case CL.tapis:
+        icon = <FontAwesome5 name="scroll" size={24} color={Colors.background} />;
+        break;
+      case CL.voiture:
+        icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
+        break;
+      case CL.moto:
+        icon = <FontAwesome5 name="motorcycle" size={24} color={Colors.background} />;
+        break;
+      case CL.local:
+        icon = <FontAwesome5 name="building" size={24} color={Colors.background} />;
+        break;
+      default:
+        icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
+    }
+    return (
+      <>
+        {icon}
+      </>
+    );
+  }
 
   return (
-    <TouchableOpacity onPress={onPressAction ? onPressAction: onPress}>
+    <TouchableOpacity onPress={onPressAction ? onPressAction : onPress}>
       <View style={styles.container}>
         <View style={styles.card}>
           <View style={styles.logo}>
-            <Ionicons name="car-sport-outline" size={24} color="black" />
+            <ReturnIcon />
           </View>
           <View style={styles.mcontainer}>
             <Text
@@ -43,7 +73,7 @@ const SmallCard = ({ item: {item}, action, onPressAction }) => {
             <Text
               style={[
                 styles.price,
-                { color: item?.change > 0 ? '#5cb85c' : '#B35F00' },
+                { color: item?.attributes?.mode_paiement?.data?.attributes?.name === "Impaye" ? Colors?.thirdRed : '#000' },
               ]}>
               {item?.attributes?.mode_paiement?.data?.attributes?.name}
             </Text>
@@ -69,7 +99,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 5,
     // fontFamily: 'RobotoSlab-Regular',
-    color: "#B35F00",
+    color: Colors.thirdRed,
   },
   chart: {
     paddingRight: 0,
@@ -107,7 +137,8 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     alignSelf: 'center',
-    backgroundColor: "#CF4600",
+    // backgroundColor: "#CF4600",
+    backgroundColor: Colors.baseColor,
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',
@@ -130,7 +161,6 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 20,
     padding: 10,
-    // backgroundColor: Colors.card,
     justifyContent: 'center',
     marginHorizontal: 0,
     marginVertical: 10,

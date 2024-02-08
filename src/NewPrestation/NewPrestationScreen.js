@@ -10,7 +10,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../Util/AuthContext';
-import { Button, Form, H4, Spinner, Input, SizeTokens, TextArea, XStack, YStack, Label, ToggleGroup, styled } from 'tamagui'
+import { Button, Form, H4, Spinner, Input, XStack, YStack, Label, ToggleGroup, styled } from 'tamagui'
 import Colors from '../Util/static/Colors';
 import axios from "axios";
 import { baseUrl } from '../Util/BaseUrl';
@@ -64,9 +64,9 @@ const NewPrestationScreen = () => {
 
             if (category === 1) {
                 postData.data.aReirer = false;
-              } else {
+            } else {
                 postData.data.aReirer = null;
-              }
+            }
 
             console.log("DDAATTAA", encaissement)
 
@@ -85,22 +85,22 @@ const NewPrestationScreen = () => {
     const clearText = () => {
         setEmail('');
         setMarque('');
-        setCategory('');
-        setTypeLavage([]);
+        // setCategory('');
+        // setTypeLavage([]);
         setImatriculation('');
         setMontant('');
-        setModePaiement('');
+        // setModePaiement('');
         setTel('');
         setEncaissement('');
         setStatus('off');
         setNom('');
     }
-    
+
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} >
             <View style={{ flex: 1, backgroundColor: "white" }}>
-            <SuccessModal visible={isModalVisible} onClose={() => setModalVisible(false)} />
+                <SuccessModal visible={isModalVisible} onClose={() => setModalVisible(false)} />
                 <Form
                     alignItems="center"
                     minWidth={300}
@@ -242,19 +242,7 @@ const NewPrestationScreen = () => {
                             <Input flex={1} size="$4" id="encaissement" placeholder="Somme encaissée" value={encaissement} type="number" onChangeText={setEncaissement} style={styles.shadowStyle} />
                         </XStack>
                     </YStack>
-                    {/* <FormHeading title="Nouvelle Prestation" /> */}
-                    {/* <TextInput placeholder="Nom du Client" value={nom} inputStyle={styles.inputStyle}
-                        labelStyle={styles.labelStyle}
-                        placeholderStyle={styles.placeholderStyle}
-                        textErrorStyle={styles.textErrorStyle} style={styles.input} />
-                    <TextInput placeholder="Numéro de Téléphone" label="Tel" value={tel} inputStyle={{ marginBottom: "2%" }} />
-                    <TextInput placeholder="Catégorie de Lavage" label="Catégorie" value={category} inputStyle={{ marginBottom: "2%" }} />
-                    <TextInput placeholder="Type de Lavage" label="Type" value={typeLavage} inputStyle={{ marginBottom: "2%" }} />
-                    <TextInput placeholder="Marque Véhicule" label="Marque" value={marque} inputStyle={{ marginBottom: "2%" }} />
-                    <TextInput placeholder="Immatriculation du Véhicule" label="Immatriculation" value={imatriculation} inputStyle={{ marginBottom: "2%" }} />
-                    <TextInput placeholder="Montant Prestation" label="Montant" value={montant} inputStyle={{ marginBottom: "2%" }} />
-                    <TextInput placeholder="Mode de Paiement" label="Paiement" value={modePaiement} inputStyle={{ marginBottom: "2%" }} /> */}
-                    <Button size={"$4"} style={{ width: "80%" }} onPress={createPrestation} color={Colors.baseColor}>Enregistrer</Button>
+                    <Button size={"$4"} style={{ width: "80%" }} onPress={createPrestation} backgroundColor={Colors.baseColor} color={Colors.background}>Enregistrer</Button>
                 </Form>
             </View>
         </TouchableWithoutFeedback>

@@ -19,12 +19,16 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../Util/AuthContext';
 import axios from 'axios';
 import { baseUrl } from '../Util/BaseUrl';
+import Colors from '../Util/static/Colors';
 
 
 const AbonneScreen = () => {
 
     const navigation = useNavigation();
     const [data, setData] = useState([]);
+    const [abonneCount, setAbonneCount] = useState(0);
+    const [abonnePrestaCount, setAbonnePrestaCount] = useState(0);
+    const [ogData, setOgData] = useState([]);
     const [query, setQuery] = useState("");
     const [user, setUser] = useAuth();
 
@@ -32,9 +36,9 @@ const AbonneScreen = () => {
         setQuery(query);
         const formattedQuery = query.toLowerCase();
         console.log("f query", formattedQuery)
-        if(formattedQuery === "" || formattedQuery === " "){
+        if (formattedQuery === "" || formattedQuery === " ") {
             console.log("here ")
-            setData(PRESTA_LIST);
+            setData(ogData);
             return
         }
         const filteredData = filter(data, (presta) => {
@@ -43,8 +47,8 @@ const AbonneScreen = () => {
         setData(filteredData);
     }
 
-    const contains = ({name, price, payment}, query) => {
-        if(name.toLowerCase().includes(query) || price.toLowerCase().includes(query) || payment.toLowerCase().includes(query)){
+    const contains = ({ attributes: { NomComplet, article, Tel } }, query) => {
+        if (NomComplet?.toLowerCase().includes(query) || article?.toLowerCase().includes(query) || Tel?.toLowerCase().includes(query)) {
             console.log("hit")
             return true;
         }
@@ -55,18 +59,40 @@ const AbonneScreen = () => {
         React.useCallback(() => {
             const getAbonnes = async () => {
                 try {
-                    console.log('Trying hard', user);
-                    // #: $contains
                     const { data } = await axios.get(`${baseUrl}/api/abonnes?populate=*`, {
                         headers: { Authorization: `Bearer ${user?.token}` },
                     });
                     console.log('Successfully got the prestas $$', data?.data);
                     setData(data?.data);
+                    setOgData(data?.data);
+                    setAbonneCount(data?.meta?.pagination?.total)
                 } catch (err) {
                     console.error('Failed to get prestas', err);
                 }
             }
+            const getListPrestasAbonnesOfMonth = async () => {
+                try {
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = (today.getMonth() + 1).toString().padStart(2, '0'); // Note: month is 0-indexed, so we add 1
+                    const startOfMonth = `${year}-${month}-01T00:00:00.000Z`;
+
+                    // To get the end of the month, we can use the start of the next month and subtract 1 millisecond
+                    const nextMonth = month === '12' ? '01' : (parseInt(month) + 1).toString().padStart(2, '0');
+                    const nextYear = month === '12' ? year + 1 : year;
+                    const endOfMonth = `${nextYear}-${nextMonth}-01T00:00:00.000Z`;
+                    console.log("month end ", endOfMonth)
+                    const { data } = await axios.get(`${baseUrl}/api/prestation-abonnes?populate=*&filters[createdAt][$gt]=${startOfMonth}&filters[createdAt][$lte]=${endOfMonth}`, {
+                        headers: { Authorization: `Bearer ${user?.token}` },
+                    });
+                    console.log('Successfully got the prestas for ABONNE IN MONTH $$', data?.data);
+                    setAbonnePrestaCount(data?.meta?.pagination?.total);
+                } catch (err) {
+                    console.error('Failed to get prestas for abonne MONTH', err);
+                }
+            }
             getAbonnes();
+            getListPrestasAbonnesOfMonth();
         }, [])
     );
 
@@ -84,7 +110,7 @@ const AbonneScreen = () => {
                         style={{ bottom: -8, }}
                         onPress={() => navigation.navigate("NewAbonneScreen")}
                     >
-                        <Text>Ajouter Abonné</Text>
+                        <Text style={{ marginRight: "7%", textDecorationLine: 'underline', color: Colors.baseColor }}>Ajouter Abonné</Text>
                         {/* <Button size="$3" style={{
                                 shadowColor: "#ff2e2e",
                                 shadowOffset: {
@@ -97,7 +123,6 @@ const AbonneScreen = () => {
                             }} variant="outlined" borderRadius={10} icon={<Entypo name="circle-with-plus" size={24} color="red" />} >
                                 H
                             </Button> */}
-
                     </TouchableOpacity>
                 </View>
 
@@ -111,31 +136,31 @@ const AbonneScreen = () => {
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
                                 <View style={styles.ellipse} />
-                                <Entypo name="arrow-down" color="orange" size={30} />
+                                <Entypo name="arrow-down" color={Colors.baseColor} size={30} />
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
-                            <Text style={styles.boxInfoVerticalTitle}>Nombre Abonnés</Text>
-                            <Text style={styles.boxInfoVerticalContent}>107200</Text>
+                            <Text style={styles.boxInfoVerticalTitle}>Nombre de prestations abonnés du mois</Text>
+                            <Text style={styles.boxInfoVerticalContent}>{abonnePrestaCount}</Text>
                         </View>
                     </View>
                     <View style={[styles.boxContainer, { width: "35%" }]}>
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
                                 <View style={styles.ellipse} />
-                                <Entypo name="arrow-up" color="orange" size={30} />
+                                <Entypo name="arrow-up" color={Colors.baseColor} size={30} />
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
-                            <Text style={styles.boxInfoVerticalTitle}>Solde</Text>
-                            <Text style={styles.boxInfoVerticalContent}>107000</Text>
+                            <Text style={styles.boxInfoVerticalTitle}>Nombre Abonnés</Text>
+                            <Text style={styles.boxInfoVerticalContent}>{abonneCount}</Text>
                         </View>
                     </View>
                 </View>
 
                 <View style={[styles.sectionTitle, { marginTop: 16 }]}>
                     <Text style={{ color: "darkgrey" }}>Liste des Abonnés:</Text>
-                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 17 Abonnés</Text>
+                    {/* <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 17 Abonnés</Text> */}
                 </View>
 
                 <FlashList
@@ -154,7 +179,7 @@ const AbonneScreen = () => {
                         }}
                     />}
                     data={data}
-                    renderItem={(item) => <ListCardAbonne item={item} action={{clickable: true, destination: "DetailsAbonneScreen"}} />}
+                    renderItem={(item) => <ListCardAbonne item={item} action={{ clickable: true, destination: "DetailsAbonneScreen" }} />}
                     estimatedItemSize={20}
                     contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
                     onEndReachedThreshold={0.2}
@@ -333,7 +358,6 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '400',
         letterSpacing: 0,
-        lineHeight: 1,
         marginTop: -1,
         opacity: 0.4,
         position: 'relative',
@@ -344,7 +368,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '700',
         letterSpacing: 0,
-        lineHeight: 1,
+        // lineHeight: 1,
         position: 'relative',
     },
 
@@ -371,9 +395,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.17,
         shadowRadius: 3.05,
         elevation: 4
-      },
-      inputStyle: { fontSize: 16 },
-      labelStyle: { fontSize: 14 },
-      placeholderStyle: { fontSize: 16 },
-      textErrorStyle: { fontSize: 16 },
+    },
+    inputStyle: { fontSize: 16 },
+    labelStyle: { fontSize: 14 },
+    placeholderStyle: { fontSize: 16 },
+    textErrorStyle: { fontSize: 16 },
 });

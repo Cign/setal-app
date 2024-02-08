@@ -3,7 +3,9 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-
+import { FontAwesome5 } from '@expo/vector-icons';
+import CL from '../Util/static/CategoryLavage';
+import Colors from '../Util/static/Colors';
 // item: { name, price, image, onPress, date, change }
 
 const ListCardAbonne = ({ item: {item}, action, onPressAction }) => {
@@ -19,13 +21,38 @@ const ListCardAbonne = ({ item: {item}, action, onPressAction }) => {
       item
     })}
     }
+    const ReturnIcon = () => {
+      let icon;
+  
+      switch (item?.attributes?.category_lavage?.data?.attributes?.name) {
+        case CL.tapis:
+          icon = <FontAwesome5 name="scroll" size={24} color={Colors.background} />;
+          break;
+        case CL.voiture:
+          icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
+          break;
+        case CL.moto:
+          icon = <FontAwesome5 name="motorcycle" size={24} color={Colors.background} />;
+          break;
+        case CL.local:
+          icon = <FontAwesome5 name="building" size={24} color={Colors.background} />;
+          break;
+        default:
+          icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
+      }
+      return (
+        <>
+          {icon}
+        </>
+      );
+    }
 
   return (
     <TouchableOpacity onPress={onPressAction ? onPressAction: onPress}>
       <View style={styles.container}>
         <View style={styles.card}>
           <View style={styles.logo}>
-            <Ionicons name="car-sport-outline" size={24} color="black" />
+            <ReturnIcon />
           </View>
           <View style={styles.mcontainer}>
             <Text
@@ -45,7 +72,7 @@ const ListCardAbonne = ({ item: {item}, action, onPressAction }) => {
                 styles.price,
                 { color: item?.change > 0 ? '#5cb85c' : '#B35F00' },
               ]}>
-              {item?.attributes?.createdAt}
+              {new Date(item?.attributes?.createdAt)?.toLocaleDateString('fr-FR')}
             </Text>
           </View>
         </View>
@@ -107,7 +134,8 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     alignSelf: 'center',
-    backgroundColor: "#CF4600",
+    backgroundColor: Colors.baseColor,
+    // backgroundColor: "#CF4600",
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',

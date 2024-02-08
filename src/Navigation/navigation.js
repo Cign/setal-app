@@ -5,10 +5,10 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import {
     StyleSheet,
-    Text,
     View,
-    image,
     TouchableOpacity,
+    Platform,
+    Text
 } from "react-native";
 
 import { Ionicons } from '@expo/vector-icons';
@@ -26,6 +26,7 @@ import NewAbonneScreen from "../NewAbonne/NewAbonne"
 import RetraitScreen from "../Retrait/RetraitScreen";
 import DetailsAbonneScreen from "../Abonne/DetailsAbonne";
 import DashboardScreen from "../Admin/Dashboard/Dashboard"
+import Colors from "../Util/static/Colors";
 
 const Tab = createBottomTabNavigator();
 
@@ -62,8 +63,8 @@ export function BottomTabs() {
         <>
             <Tab.Navigator screenOptions={screenOptions}>
                 <Tab.Screen name="Accueil" component={PrestationClientScreen} options={{ headerShown: false }} />
-                <Tab.Screen name="Abonnements" component={AbonneNavigator} options={{ headerShown: false }}/>
-                <Tab.Screen name=" " component={NewPrestationScreen} options={{ title: 'Nouvelle Prestation', tabBarButton: (props) => <CustomTabBarButton {...props}  /> }} /> 
+                <Tab.Screen name="Abonnements" component={AbonneNavigator} options={{ headerShown: false }} />
+                <Tab.Screen name=" " component={NewPrestationScreen} options={{ title: 'Nouvelle Prestation', tabBarButton: (props) => <CustomTabBarButton {...props} /> }} />
                 <Tab.Screen name="Impayes" component={ImpayesScreen} />
                 <Tab.Screen name="Retraits" component={RetraitScreen} />
                 <Tab.Screen name="AdminBoard" component={DashboardScreen} />
@@ -111,7 +112,7 @@ const screenOptions = ({ route }) => ({
     ],
     tabBarHideOnKeyboard: true,
     // tabBarShowLabel: false,
-    
+
 
 });
 
@@ -152,28 +153,64 @@ const styles = StyleSheet.create({
     }
 })
 
+const BackButton = (props) => {
+    return (
+        <TouchableOpacity
+            style={[
+                {
+                    backgroundColor: "white",
+                    padding: 8,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    borderRadius: 25,
+                    flexDirection: "row"
+                },
+                { paddingLeft: Platform.OS === "ios" ? 8 : 16 },
+            ]}
+            activeOpacity={0.6}
+            onPress={() => navigation.goBack()}
+            {...props}
+        >
+            <Ionicons name="chevron-back-sharp" size={24} color={Colors.baseColor} />
+            <Text style={{color: Colors.baseColor}}>Retour</Text>
+        </TouchableOpacity>
+    )
+}
+
 const AbonneNavigator = ({ navigation }) => {
-  return (
-    <Stack.Navigator
-      initialRouteName="AbonneScreen"
-      screenOptions={{ unmountOnBlur: true, headerShown: true }}
-    >
-      <Stack.Screen
-        name="Abonnés"
-        component={AbonneScreen}
-      />
-      <Stack.Screen
-        name="NewAbonneScreen"
-        component={NewAbonneScreen}
-        options={{ title:"Créer nouvel abonné"}}
-      />
-      <Stack.Screen
-        name="DetailsAbonneScreen"
-        component={DetailsAbonneScreen}
-        options={{ title:"Infos sur l'abonné"}}
-      />
-    </Stack.Navigator>
-  );
+    return (
+        <Stack.Navigator
+            initialRouteName="AbonneScreen"
+            screenOptions={{
+                unmountOnBlur: true, headerShown: true
+            }}
+        >
+            <Stack.Screen
+                name="Abonnés"
+                component={AbonneScreen}
+            />
+            <Stack.Screen
+                name="NewAbonneScreen"
+                component={NewAbonneScreen}
+                options={{
+                    title: "Créer nouvel abonné",
+                    headerLeft: (props) => (
+                        <BackButton {...props} />
+                    ),
+                }}
+            />
+            <Stack.Screen
+                name="DetailsAbonneScreen"
+                component={DetailsAbonneScreen}
+                options={{
+                    title: "Infos sur l'abonné",
+                    headerLeft: (props) => (
+                        <BackButton {...props} />
+                    ),
+                }}
+            />
+        </Stack.Navigator>
+    );
 };
 
 

@@ -21,27 +21,10 @@ import axios from 'axios';
 import Colors from '../Util/static/Colors';
 import SuccessModal from '../Util/SuccessModal';
 
-const PRESTA_LIST = [
-    { name: "Ousmane Tall", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash", category: "" },
-    { name: "Mango Fall", price: "5000", image: "", onPress: "", type: "Complet", payment: "Impaye" },
-    { name: "Bougah Jean", price: "2500", image: "", onPress: "", type: "simple", payment: "OM" },
-    { name: "Alassane Niang", price: "2500", image: "", onPress: "", type: "simple", payment: "Wave" },
-    { name: "Ndiogou Cisse", price: "5000", image: "", onPress: "", type: "Complet", payment: "Cash" },
-    { name: "Fallou Ba", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-    { name: "Kader Lo", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-    { name: "Ibrahim Kante", price: "5000", image: "", onPress: "", type: "Complet", payment: "Wave" },
-    { name: "Amadou Ba", price: "7500", image: "", onPress: "", type: "Complet +", payment: "Wave" }
-]
-
 const PrestationClientScreen = () => {
-
-    const _generateArray = (start, size) => {
-
-        return PRESTA_LIST.slice(start, size);
-    }
-
-    const navigate = useNavigation();
-    const [data, setData] = useState(_generateArray(0, 10));
+    const [data, setData] = useState([]);
+    const [dashboardData, setDashboardData] = useState({});
+    const [countData, setCountData] = useState([]);
     const [montantDepense, setMontantDepense] = useState("");
     const [objetDepense, setObjetDepense] = useState("");
     const [position, setPosition] = useState(0)
@@ -50,6 +33,7 @@ const PrestationClientScreen = () => {
     const [snapPointsMode, setSnapPointsMode] = useState('percent')
     const [user, setUser] = useAuth();
     const [isModalVisible, setModalVisible] = useState(false);
+    const snapPoints = [50]
 
     const clearText = () => {
         setMontantDepense('');
@@ -59,24 +43,47 @@ const PrestationClientScreen = () => {
     useFocusEffect(
         React.useCallback(() => {
             const getPrestationsListByUserId = async () => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
                 try {
                     console.log('Trying hard', user);
                     // #: $contains
+                    // for today: /api/prestations?populate=*&filters[employe][id][$eqi]=1&filters[createdAt][$gte]=2024-02-05T00:00:00Z&filters[createdAt][$lte]=2024-02-06T00:00:00Z #&filters[date_gte]=${today.toISOString()}&filters[date_gte]=${tomorrow.toISOString()}
                     const { data } = await axios.get(`${baseUrl}/api/prestations?populate=*&filters[employe][id][$eqi]=${user?.id}`, {
                         headers: { Authorization: `Bearer ${user?.token}` },
                     });
-                    console.log('Successfully got the prestas $$', data?.data);
+                    console.log('Successfully got the prestas META$$', data?.meta);
                     setData(data?.data);
+                    setCountData(data?.meta?.pagination?.total)
+                } catch (err) {
+                    console.error('Failed to get prestas', err);
+                }
+            }
+            const getDashData = async () => {
+                // /api/prestations/:id/todaysRecetteAndExpenses
+                try {
+                    console.log('Trying hard', user);
+                    // #: $contains
+                    // for today: /api/prestations?populate=*&filters[employe][id][$eqi]=1&filters[createdAt][$gte]=2024-02-05T00:00:00Z&filters[createdAt][$lte]=2024-02-06T00:00:00Z #&filters[date_gte]=${today.toISOString()}&filters[date_gte]=${tomorrow.toISOString()}
+                    const { data } = await axios.get(`${baseUrl}/api/prestations/${user?.id}/todaysRecetteAndExpenses`, {
+                        headers: { Authorization: `Bearer ${user?.token}` },
+                    });
+                    console.log('Successfully got DASH DATA', data);
+                    setDashboardData(data)
                 } catch (err) {
                     console.error('Failed to get prestas', err);
                 }
             }
             getPrestationsListByUserId();
+            getDashData();
         }, [])
     );
 
     const addDepense = async () => {
-        
         try {
             const postData = {
                 data: {
@@ -93,13 +100,12 @@ const PrestationClientScreen = () => {
             setModalVisible(true);
             clearText();
             setOpen(false)
-
         } catch (err) {
             console.error('Failed to CREATE DEPENSE', err);
         }
     }
 
-    const snapPoints = [50, 25]
+    
 
     return (
         <LinearGradient
@@ -138,7 +144,7 @@ const PrestationClientScreen = () => {
                 <View style={styles.sectionTitle}>
                     <Text style={{ color: "darkgrey" }}>Chiffres du jour</Text>
                     <TouchableOpacity onPress={() => setOpen(true)}>
-                        <Text style={{ marginRight: "7%" }}>Ajouter dépense</Text>
+                        <Text style={{ marginRight: "7%", textDecorationLine: 'underline', color: Colors.baseColor }}>Ajouter dépense</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -147,31 +153,31 @@ const PrestationClientScreen = () => {
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
                                 <View style={styles.ellipse} />
-                                <Entypo name="arrow-down" color="orange" size={30} />
+                                <Entypo name="arrow-down" color={Colors.baseColor} size={30} />
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
                             <Text style={styles.boxInfoVerticalTitle}>Recettes</Text>
-                            <Text style={styles.boxInfoVerticalContent}>107200</Text>
+                            <Text style={styles.boxInfoVerticalContent}>{dashboardData?.todaysTotalRecettes}</Text>
                         </View>
                     </View>
                     <View style={styles.boxContainer}>
                         <View style={styles.iconGroup}>
                             <View style={styles.iconOverlapGroup}>
                                 <View style={styles.ellipse} />
-                                <Entypo name="arrow-up" color="orange" size={30} />
+                                <Entypo name="arrow-up" color={Colors.baseColor} size={30} />
                             </View>
                         </View>
                         <View style={styles.boxInfoVertical}>
                             <Text style={styles.boxInfoVerticalTitle}>Dépenses</Text>
-                            <Text style={styles.boxInfoVerticalContent}>107000</Text>
+                            <Text style={styles.boxInfoVerticalContent}>{dashboardData?.todaysTotalDepenses}</Text>
                         </View>
                     </View>
                 </View>
 
                 <View style={[styles.sectionTitle, { marginTop: 16 }]}>
                     <Text style={{ color: "darkgrey" }}>Liste des Prestations du jour:</Text>
-                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 12 Prestations</Text>
+                    <Text style={{ fontWeight: "bold", marginRight: "7%" }}> {countData} Prestation(s)</Text>
                 </View>
 
                 <FlashList
@@ -215,8 +221,8 @@ const PrestationClientScreen = () => {
                             <Button
                                 title='Enregistrer'
                                 backgroundColor={Colors.baseColor}
-                                color={'cyan'}
-                                style={{ marginTop: 6 }}
+                                color={'#fff'}
+                                style={{ marginTop: 10 }}
                                 onPress={addDepense}
                             >
                                 Enregistrer
@@ -498,7 +504,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '400',
         letterSpacing: 0,
-        lineHeight: 1,
+        // lineHeight: 1,
         marginTop: -1,
         opacity: 0.4,
         position: 'relative',

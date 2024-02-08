@@ -13,6 +13,7 @@ import axios from "axios";
 import { baseUrl } from '../Util/BaseUrl';
 import { useAuth } from '../Util/AuthContext';
 import SuccessModal from '../Util/SuccessModal';
+import Colors from '../Util/static/Colors';
 
 const NewPrestationScreen = () => {
     const [email, setEmail] = useState('');
@@ -204,7 +205,7 @@ const NewPrestationScreen = () => {
                                 <TextArea placeholder="Décrire l'abonnement..." flex={1} size="$4" id="desc" value={description} onChangeText={setDescription} style={styles.shadowStyle} />
                             </XStack>
                         </YStack>
-                        <Button size={"$4"} style={{ width: "80%" }} onPress={createAbonne}>Enregistrer</Button>
+                        <Button size={"$4"} style={{ width: "80%" }} onPress={createAbonne} backgroundColor={Colors.baseColor} color={Colors.background}>Enregistrer</Button>
                     </Form>
                 </KeyboardAvoidingView>
             </View>

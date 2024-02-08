@@ -3,13 +3,9 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
   ScrollView,
-  TouchableOpacity,
   SafeAreaView,
   Platform,
-  Touchable,
-  Button
 } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { useNavigation } from '@react-navigation/native';
@@ -17,34 +13,22 @@ import { FlashList } from "@shopify/flash-list";
 import ListCardAction from '../Components/ListCardAction';
 import { TextInput } from 'react-native-element-textinput';
 import filter from "lodash.filter";
+import { FontAwesome5 } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../Util/AuthContext';
 import axios from 'axios';
 import { baseUrl } from '../Util/BaseUrl';
 import SuccessModal from '../Util/SuccessModal';
-import { XGroup, XStack, YStack, Sheet, H5, Paragraph } from 'tamagui'
-
-const PRESTA_LIST = [
-  { name: "Ousmane Tall", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash", category: "" },
-  { name: "Mango Fall", price: "5000", image: "", onPress: "", type: "Complet", payment: "Impaye" },
-  { name: "Bougah Jean", price: "2500", image: "", onPress: "", type: "simple", payment: "OM" },
-  { name: "Alassane Niang", price: "2500", image: "", onPress: "", type: "simple", payment: "Wave" },
-  { name: "Ndiogou Cisse", price: "5000", image: "", onPress: "", type: "Complet", payment: "Cash" },
-  { name: "Fallou Ba", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-  { name: "Kader Lo", price: "2500", image: "", onPress: "", type: "simple", payment: "Cash" },
-  { name: "Ibrahim Kante", price: "5000", image: "", onPress: "", type: "Complet", payment: "Wave" },
-  { name: "Amadou Ba", price: "7500", image: "", onPress: "", type: "Complet +", payment: "Wave" }
-]
+import { ToggleGroup, XStack, YStack, Sheet, H5, Paragraph, Label, Button } from 'tamagui'
+import Colors from '../Util/static/Colors';
 
 const ImpayeScreen = () => {
 
-  const _generateArray = (start, size) => {
-
-    return PRESTA_LIST.slice(start, size);
-  }
-
-  const navigation = useNavigation();
   const [data, setData] = useState("");
+  const [ogData, setOgData] = useState([]);
+  const [countImpayes, setCountImpayes] = useState(0);
+  const [totalImpayes, setTotalImpayes] = useState(0);
   const [query, setQuery] = useState("");
   const [user, setUser] = useAuth();
   const [position, setPosition] = useState(0)
@@ -54,6 +38,7 @@ const ImpayeScreen = () => {
   const [snapPointsMode, setSnapPointsMode] = useState('percent')
   const snapPoints = [50, 25]
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modePaiement, setModePaiement] = useState('');
 
   const handleSearch = (query) => {
     setQuery(query);
@@ -61,7 +46,7 @@ const ImpayeScreen = () => {
     console.log("f query", formattedQuery)
     if (formattedQuery === "" || formattedQuery === " ") {
       console.log("here ")
-      setData(PRESTA_LIST);
+      setData(ogData);
       return
     }
     const filteredData = filter(data, (presta) => {
@@ -70,8 +55,8 @@ const ImpayeScreen = () => {
     setData(filteredData);
   }
 
-  const contains = ({ name, price, payment }, query) => {
-    if (name.toLowerCase().includes(query) || price.toLowerCase().includes(query) || payment.toLowerCase().includes(query)) {
+  const contains = ({ attributes: { NomCompletClient, montant, Description } }, query) => {
+    if (NomCompletClient?.toLowerCase().includes(query) || montant?.toLowerCase().includes(query) || Description?.toLowerCase().includes(query)) {
       console.log("hit")
       return true;
     }
@@ -79,30 +64,20 @@ const ImpayeScreen = () => {
   }
 
   const openModal = (item) => {
-    console.log("obj", item?.item)
     setOpen(true)
     setPrestaToUpdate(item?.item)
   }
 
   const confirmPay = async () => {
     // set the value at montant field on the coresponding prestation id
-
     try {
       const postData = {
         data: {
-          // montant: montant,
-          // mode_paiement: modePaiement,
-          // Versement: encaissement,
+          Versement: prestaToUpdate?.attributes?.montant,
+          mode_paiement: modePaiement,
           aPaye: true,
-          // employe: user?.id,
         }
       };
-
-      // if (category === 1) {
-      //   postData.data.aReirer = false;
-      // } else {
-      //   postData.data.aReirer = null;
-      // }
       await axios.put(`${baseUrl}/api/prestations/${prestaToUpdate?.id}`, postData, {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
@@ -125,11 +100,25 @@ const ImpayeScreen = () => {
           });
           console.log('Successfully got the prestas IMPAYES $$', data?.data);
           setData(data?.data);
+          setOgData(data?.data);
+          setCountImpayes(data?.meta?.pagination?.total)
         } catch (err) {
           console.error('Failed to get IMPAYES', err);
         }
       }
+      const getTotalImpayes = async () => {
+        try {
+          console.log('Trying hard', user);
+          const { data } = await axios.get(`${baseUrl}/api/prestations/totalImpayes`, {
+            headers: { Authorization: `Bearer ${user?.token}` },
+          });
+          setTotalImpayes(data?.totalImpayes);
+        } catch (err) {
+          console.error('Failed to get TOTAL IMPAYES', err);
+        }
+      }
       getImpayes();
+      getTotalImpayes();  
     }, [])
   );
 
@@ -141,19 +130,19 @@ const ImpayeScreen = () => {
           <View style={styles.iconGroup}>
             <View style={styles.iconOverlapGroup}>
               <View style={styles.ellipse} />
-              <Entypo name="cross" color="orange" size={30} />
+              <Entypo name="cross" color={Colors.baseColor} size={30} />
             </View>
           </View>
           <View style={styles.boxInfoVertical}>
             <Text style={styles.boxInfoVerticalTitle}>Total des impayés</Text>
-            <Text style={styles.boxInfoVerticalContent}>110 200 F</Text>
+            <Text style={styles.boxInfoVerticalContent}>{totalImpayes}</Text>
           </View>
         </View>
       </View>
 
       <View style={[styles.sectionTitle, { marginTop: 16 }]}>
         <Text style={{ color: "darkgrey" }}>Liste des Impayés:</Text>
-        <Text style={{ fontWeight: "bold", marginRight: "7%" }}> 11 Impayés</Text>
+        <Text style={{ fontWeight: "bold", marginRight: "7%" }}> {countImpayes} Impayé(s)</Text>
       </View>
 
       <FlashList
@@ -201,21 +190,51 @@ const ImpayeScreen = () => {
           <YStack>
             <H5>Confirmer le paiement </H5>
             <Paragraph>
-              Est ce que le client a payé la somme due ?
+              Est ce que le client {prestaToUpdate?.attributes?.NomCompletClient} a payé la somme due ?
             </Paragraph>
+            <XStack><Label width={80} justifyContent="flex-end" size={"$4"} htmlFor={"pay"}>
+              {'Mode'}
+            </Label>
+              <ScrollView horizontal={true} bounces={true} directionalLockEnabled={true} style={{ padding: 2 }}>
+                <ToggleGroup
+                  orientation={"horizontal"}
+                  id={"pay"}
+                  type={"single"}
+                  size={"$3"}
+                  disableDeactivation={true}
+                  onValueChange={setModePaiement}
+                  style={styles.shadowStyle}
+                >
+                  <ToggleGroup.Item value={1} aria-label="Left aligned" >
+                    <FontAwesome5 name="om" size={24} color="black" />
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value={2} aria-label="Center aligned">
+                    <MaterialCommunityIcons name="penguin" size={24} color="black" />
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value={3} aria-label="Right aligned">
+                    <FontAwesome5 name="money-bill" size={24} color="black" />
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value={4} aria-label="Right aligned">
+                    <FontAwesome5 name="bitcoin" size={24} color="black" />
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value={5} aria-label="Right aligned">
+                    <FontAwesome5 name="exclamation-triangle" size={24} color="black" />
+                  </ToggleGroup.Item>
+                </ToggleGroup>
+              </ScrollView>
+            </XStack>
             <XStack>
               <Button
-                title='Non'
-                color="lightblue"
-
-              />
-              <Button
-                title='Oui'
-                color="#ff2e2e"
+                size={"$3"}
+                color="#fff"
                 onPress={confirmPay}
-              />
+                backgroundColor={Colors.baseColor}
+                style={{ marginVertical: 10, marginHorizontal: 6 }}
+                minWidth={"89%"}
+              >
+                Valider
+              </Button>
             </XStack>
-
           </YStack>
         </Sheet.Frame>
       </Sheet>
@@ -326,7 +345,8 @@ const styles = StyleSheet.create({
   dayInfoContainer: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-around"
+    justifyContent: "space-around",
+    marginTop: 20
   },
   boxContainer: {
     alignItems: 'center',
@@ -392,7 +412,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '400',
     letterSpacing: 0,
-    lineHeight: 1,
+    // lineHeight: 1,
     marginTop: -1,
     opacity: 0.4,
     position: 'relative',
@@ -403,7 +423,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     letterSpacing: 0,
-    lineHeight: 1,
+    // lineHeight: 1,
     position: 'relative',
   },
 
