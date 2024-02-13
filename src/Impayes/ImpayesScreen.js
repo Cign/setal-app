@@ -24,7 +24,6 @@ import { ToggleGroup, XStack, YStack, Sheet, H5, Paragraph, Label, Button } from
 import Colors from '../Util/static/Colors';
 
 const ImpayeScreen = () => {
-
   const [data, setData] = useState("");
   const [ogData, setOgData] = useState([]);
   const [countImpayes, setCountImpayes] = useState(0);
@@ -118,7 +117,7 @@ const ImpayeScreen = () => {
         }
       }
       getImpayes();
-      getTotalImpayes();  
+      getTotalImpayes();
     }, [])
   );
 

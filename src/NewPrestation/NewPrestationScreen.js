@@ -248,7 +248,6 @@ const NewPrestationScreen = () => {
         </TouchableWithoutFeedback>
     );
 };
-
 export default NewPrestationScreen;
 
 const styles = StyleSheet.create({

@@ -90,7 +90,7 @@ const NewPrestationScreen = () => {
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} >
             <View style={{ flex: 1, backgroundColor: "white" }}>
                 <KeyboardAvoidingView>
-                <SuccessModal visible={isModalVisible} onClose={() => setModalVisible(false)} />
+                    <SuccessModal visible={isModalVisible} onClose={() => setModalVisible(false)} />
                     <Form
                         alignItems="center"
                         minWidth={300}

@@ -57,7 +57,7 @@ const RetraitScreen = () => {
         setData(filteredData);
     }
 
-    const contains = ({attributes:{ NomCompletClient, montant, Description }}, query) => {
+    const contains = ({ attributes: { NomCompletClient, montant, Description } }, query) => {
         console.log("nomcomplet", Description)
         if (NomCompletClient?.toLowerCase().includes(query) || montant?.toLowerCase().includes(query) || Description?.toLowerCase().includes(query)) {
             console.log("hit")
@@ -121,20 +121,20 @@ const RetraitScreen = () => {
             </View>
             <FlashList
                 ListHeaderComponent={
-                <TextInput
-                    value={query}
-                    style={styles.input}
-                    inputStyle={styles.inputStyle}
-                    labelStyle={styles.labelStyle}
-                    placeholderStyle={styles.placeholderStyle}
-                    textErrorStyle={styles.textErrorStyle}
-                    label="Rechercher dans la liste"
-                    placeholder="Rechercher par le nom, montant, ou type paiement"
-                    placeholderTextColor="gray"
-                    onChangeText={text => {
-                        handleSearch(text);
-                    }}
-                />}
+                    <TextInput
+                        value={query}
+                        style={styles.input}
+                        inputStyle={styles.inputStyle}
+                        labelStyle={styles.labelStyle}
+                        placeholderStyle={styles.placeholderStyle}
+                        textErrorStyle={styles.textErrorStyle}
+                        label="Rechercher dans la liste"
+                        placeholder="Rechercher par le nom, montant, ou type paiement"
+                        placeholderTextColor="gray"
+                        onChangeText={text => {
+                            handleSearch(text);
+                        }}
+                    />}
                 data={data}
                 renderItem={(item) => <ListCard item={item} onPressAction={() => openModal(item)} />}
                 estimatedItemSize={20}

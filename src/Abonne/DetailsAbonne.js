@@ -27,7 +27,6 @@ import ActionModal from '../Components/ActionModal'
 import Colors from '../Util/static/Colors';
 
 const DetailsAbonneScreen = () => {
-
     const navigation = useNavigation();
     const route = useRoute();
     const { item } = route.params;

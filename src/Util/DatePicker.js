@@ -4,7 +4,6 @@ import DateTimePicker, {
   DateTimePickerAndroid,
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-// import { Config } from '../../config';
 
 const DatePicker = ({ value, onChange }) => {
   const [dateSelected, setDateSelected] = useState(new Date());

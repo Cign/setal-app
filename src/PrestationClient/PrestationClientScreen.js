@@ -105,8 +105,6 @@ const PrestationClientScreen = () => {
         }
     }
 
-    
-
     return (
         <LinearGradient
             style={styles.container}
@@ -234,7 +232,6 @@ const PrestationClientScreen = () => {
         </LinearGradient>
     );
 };
-
 export default PrestationClientScreen;
 
 const styles = StyleSheet.create({

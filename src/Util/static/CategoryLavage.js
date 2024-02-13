@@ -7,5 +7,5 @@ export default {
     voiture,
     moto,
     local,
-    tapis
+    tapis,
 };

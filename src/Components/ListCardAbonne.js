@@ -8,7 +8,7 @@ import CL from '../Util/static/CategoryLavage';
 import Colors from '../Util/static/Colors';
 // item: { name, price, image, onPress, date, change }
 
-const ListCardAbonne = ({ item: {item}, action, onPressAction }) => {
+const ListCardAbonne = ({ item: { item }, action, onPressAction }) => {
 
   const navigation = useNavigation();
 
@@ -17,38 +17,39 @@ const ListCardAbonne = ({ item: {item}, action, onPressAction }) => {
   }, [])
 
   const onPress = () => {
-    if (action?.clickable) {navigation.navigate(action?.destination, {
-      item
-    })}
+    if (action?.clickable) {
+      navigation.navigate(action?.destination, {
+        item
+      })
     }
-    const ReturnIcon = () => {
-      let icon;
-  
-      switch (item?.attributes?.category_lavage?.data?.attributes?.name) {
-        case CL.tapis:
-          icon = <FontAwesome5 name="scroll" size={24} color={Colors.background} />;
-          break;
-        case CL.voiture:
-          icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
-          break;
-        case CL.moto:
-          icon = <FontAwesome5 name="motorcycle" size={24} color={Colors.background} />;
-          break;
-        case CL.local:
-          icon = <FontAwesome5 name="building" size={24} color={Colors.background} />;
-          break;
-        default:
-          icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
-      }
-      return (
-        <>
-          {icon}
-        </>
-      );
+  }
+  const ReturnIcon = () => {
+    let icon;
+    switch (item?.attributes?.category_lavage?.data?.attributes?.name) {
+      case CL.tapis:
+        icon = <FontAwesome5 name="scroll" size={24} color={Colors.background} />;
+        break;
+      case CL.voiture:
+        icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
+        break;
+      case CL.moto:
+        icon = <FontAwesome5 name="motorcycle" size={24} color={Colors.background} />;
+        break;
+      case CL.local:
+        icon = <FontAwesome5 name="building" size={24} color={Colors.background} />;
+        break;
+      default:
+        icon = <FontAwesome5 name="car-alt" size={24} color={Colors.background} />;
     }
+    return (
+      <>
+        {icon}
+      </>
+    );
+  }
 
   return (
-    <TouchableOpacity onPress={onPressAction ? onPressAction: onPress}>
+    <TouchableOpacity onPress={onPressAction ? onPressAction : onPress}>
       <View style={styles.container}>
         <View style={styles.card}>
           <View style={styles.logo}>

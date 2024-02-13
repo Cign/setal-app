@@ -13,7 +13,7 @@ const SuccessModal = ({ visible, onClose }) => {
         <View style={styles.modalView}>
           <Text style={styles.modalText}>Success!</Text>
           <Text>Your action was successful.</Text>
-          <Button title="Close" onPress={onClose} color="#2196F3"/>
+          <Button title="Close" onPress={onClose} color="#2196F3" />
         </View>
       </View>
     </Modal>
@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold"
   }
-});
+}
+);
 
 export default SuccessModal;

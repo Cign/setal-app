@@ -6,7 +6,7 @@ const gray = "#ECECEC";
 const lightBlue = "#f1f4ff";
 const baseColor = "#FF2E2E";
 const lightRed = "#F29C9E";
-const thirdRed = "#E84B4F"
+const thirdRed = "#E84B4F";
 
 export default {
   darkText: dark,

@@ -82,7 +82,6 @@ const ListCardPrestaAbonne = ({ item: { item }, action, onPressAction }) => {
     </TouchableOpacity>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

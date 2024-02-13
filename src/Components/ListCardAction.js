@@ -7,7 +7,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import CL from '../Util/static/CategoryLavage';
 import Colors from '../Util/static/Colors';
 
-const SmallCard = ({ item: {item}, onPressAction }) => {
+const SmallCard = ({ item: { item }, onPressAction }) => {
 
   const navigation = useNavigation();
 
@@ -40,7 +40,6 @@ const SmallCard = ({ item: {item}, onPressAction }) => {
       </>
     );
   }
-
 
   return (
     <TouchableOpacity onPress={() => onPressAction(item)}>

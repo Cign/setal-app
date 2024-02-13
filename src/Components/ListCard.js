@@ -129,7 +129,6 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 14,
     textAlign: 'right',
-    // fontWeight: '500',
     color: "#000",
     marginVertical: 3,
   },

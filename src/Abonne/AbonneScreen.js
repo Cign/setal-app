@@ -111,18 +111,6 @@ const AbonneScreen = () => {
                         onPress={() => navigation.navigate("NewAbonneScreen")}
                     >
                         <Text style={{ marginRight: "7%", textDecorationLine: 'underline', color: Colors.baseColor }}>Ajouter Abonné</Text>
-                        {/* <Button size="$3" style={{
-                                shadowColor: "#ff2e2e",
-                                shadowOffset: {
-                                    width: 0,
-                                    height: 3,
-                                },
-                                shadowOpacity: 0.17,
-                                shadowRadius: 3.05,
-                                elevation: 4
-                            }} variant="outlined" borderRadius={10} icon={<Entypo name="circle-with-plus" size={24} color="red" />} >
-                                H
-                            </Button> */}
                     </TouchableOpacity>
                 </View>
 
