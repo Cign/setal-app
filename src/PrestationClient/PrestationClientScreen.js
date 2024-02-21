@@ -116,11 +116,8 @@ const PrestationClientScreen = () => {
   const isTablet = Dimensions.get("screen").width > 768;
 
   return (
-    <LinearGradient
+    <View
       style={styles.container}
-      colors={["white", "white", "white"]}
-      start={{ x: 0.5, y: 1 }}
-      end={{ x: 0, y: 0 }}
     >
       <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
         <ResponseDialog
@@ -132,7 +129,6 @@ const PrestationClientScreen = () => {
           onClose={() => setModalVisible(false)}
         />
         <View style={styles.header}>
-          {/* <Image style={styles.avatar} source={AppImages.userImage} /> */}
           <View style={{ flex: 1, marginHorizontal: 8 }}>
             <Text style={{ color: "darkgrey" }}>Bienvenu(e)</Text>
             <Text style={styles.username}>{user?.username}</Text>
@@ -276,7 +272,7 @@ const PrestationClientScreen = () => {
           />
           <Sheet.Handle />
           <Sheet.Frame padding="$4" space="$5">
-            <YStack>
+            <YStack style={{width: "70%", alignSelf: "center",}}>
               <Label htmlFor="objet">Objet:</Label>
               <Input
                 size="$4"
@@ -299,7 +295,7 @@ const PrestationClientScreen = () => {
                 title="Enregistrer"
                 backgroundColor={Colors.baseColor}
                 color={"#fff"}
-                style={{ marginTop: 10 }}
+                style={{ marginTop: Spacing }}
                 onPress={addDepense}
               >
                 Enregistrer
@@ -308,7 +304,7 @@ const PrestationClientScreen = () => {
           </Sheet.Frame>
         </Sheet>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 };
 export default PrestationClientScreen;
@@ -316,80 +312,7 @@ export default PrestationClientScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  svg: {
-    position: "absolute",
-    width: Dimensions.get("window").width,
-    // top: -170,
-  },
-  bodyContainer: {
-    marginTop: 15,
-    flex: 1,
-  },
-  headerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#000",
-    flex: 1,
-    textAlign: "center",
-    marginEnd: 30,
-  },
-  CircleShapeView: {
-    //To make Circle Shape
-    width: 150,
-    height: 150,
-    borderRadius: 150 / 2,
-    backgroundColor: "#FF00FF",
-  },
-  OvalShapeView: {
-    //To make Oval Shape
-    marginTop: 20,
-    width: 100,
-    height: 100,
-    backgroundColor: "#ED2525",
-    borderRadius: 50,
-    transform: [{ scaleX: 2 }],
-  },
-  SquareShapeView: {
-    //To make Square Shape
-    width: 100,
-    height: 100,
-    backgroundColor: "#14ff5f",
-  },
-  RectangleShapeView: {
-    //To make Rectangle Shape
-    marginTop: 20,
-    width: 120 * 2,
-    height: 120,
-    backgroundColor: "#14ff5f",
-  },
-  TriangleShapeView: {
-    //To make Triangle Shape
-    width: 0,
-    height: 0,
-    borderLeftWidth: 60,
-    borderRightWidth: 60,
-    borderBottomWidth: 120,
-    borderStyle: "solid",
-    backgroundColor: "transparent",
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderBottomColor: "#606070",
-  },
-  windowBg: {
-    backgroundColor: "rgb(120, 240, 182)",
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-  },
-  mapBgMask: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(23, 27, 34, 0.6)",
-    width: "100%",
-    zIndex: 1000,
+    marginHorizontal: Spacing
   },
   fPointsContainer: {
     flexDirection: "row",
@@ -435,7 +358,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
+    padding: Spacing,
   },
   avatar: {
     width: 40,
@@ -514,7 +437,8 @@ const styles = StyleSheet.create({
   dayInfoContainer: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
+    paddingHorizontal: Spacing
   },
   boxContainer: {
     alignItems: "center",
@@ -596,10 +520,10 @@ const styles = StyleSheet.create({
 
   // Outside title text
   sectionTitle: {
-    display: "flex",
     flexDirection: "row",
-    marginLeft: "6%",
-    marginVertical: "2%",
+    padding: Spacing,
     justifyContent: "space-between",
+    marginHorizontal: 8,
+    marginEnd: "-6.8%"
   },
 });

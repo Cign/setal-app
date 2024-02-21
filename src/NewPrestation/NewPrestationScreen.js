@@ -110,15 +110,12 @@ const NewPrestationScreen = () => {
       <View style={{ flex: 1, backgroundColor: "white" }}>
         <ResponseDialog
           title={"Nouvelle Prestation"}
-          message={
-            "Une nouvelle prestation a été enregistrée !"
-          }
+          message={"Une nouvelle prestation a été enregistrée !"}
           actionButtonText={"Fermer"}
           color={Colors.baseColor}
           visible={isModalVisible}
           onClose={() => setModalVisible(false)}
         />
-
         <Form
           alignItems="center"
           minWidth={300}
@@ -130,9 +127,8 @@ const NewPrestationScreen = () => {
           padding="$2"
           style={{ backgroundColor: "white" }}
         >
-          {/* <H4>{status[0].toUpperCase() + status.slice(1)}</H4> */}
           <YStack
-            width={300}
+            width={"80%"}
             minHeight={250}
             overflow="hidden"
             space="$2"
@@ -170,7 +166,6 @@ const NewPrestationScreen = () => {
             <XStack>
               <Label
                 width={80}
-                justifyContent="flex-end"
                 size={"$4"}
                 htmlFor={"cat"}
               >
@@ -289,13 +284,13 @@ const NewPrestationScreen = () => {
                   orientation={"horizontal"}
                   id={"pay"}
                   type={"single"}
-                  size={"$3"}
+                  size={"$4"}
                   disableDeactivation={true}
                   onValueChange={setModePaiement}
                   style={styles.shadowStyle}
                 >
                   <ToggleGroup.Item value={1} aria-label="Left aligned">
-                    <FontAwesome5 name="om" size={24} color="black" />
+                    <Text>OM</Text>
                   </ToggleGroup.Item>
                   <ToggleGroup.Item value={2} aria-label="Center aligned">
                     <MaterialCommunityIcons
@@ -336,15 +331,16 @@ const NewPrestationScreen = () => {
               />
             </XStack>
             <Button
-            size={"$4"}
-            style={{ width: "100%" }}
-            onPress={createPrestation}
-            backgroundColor={Colors.baseColor}
-            color={Colors.background}
-          >
-            Enregistrer
-          </Button>
+              size={"$4"}
+              style={{ width: "100%" }}
+              onPress={createPrestation}
+              backgroundColor={Colors.baseColor}
+              color={Colors.background}
+            >
+              Enregistrer
+            </Button>
           </YStack>
+          
         </Form>
       </View>
     </TouchableWithoutFeedback>
@@ -385,22 +381,6 @@ const styles = StyleSheet.create({
   },
   mb: {
     marginBottom: 1,
-  },
-  link: {
-    color: "rgb(23, 111, 211)",
-  },
-  avatar: {
-    height: 50,
-    width: 50,
-    backgroundColor: "rgb(23, 111, 211)",
-    borderRadius: 25,
-    alignSelf: "center",
-    padding: 6,
-    cursor: "pointer",
-    shadowColor: "#000",
-    shadowOffset: { width: 12.5, height: 12.5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
   },
   input: {
     height: 55,

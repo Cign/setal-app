@@ -3,8 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Dimensions,
-  ScrollView,
   TouchableOpacity,
   SafeAreaView,
   Platform,
@@ -14,15 +12,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import ListCardPrestaAbonne from "../Components/ListCardPrestaAbonne";
-import {
-  XStack,
-  YStack,
-  Sheet,
-  Label,
-  Input,
-  AlertDialog,
-  Button,
-} from "tamagui";
+import { YStack, Sheet, Label, Input, Button } from "tamagui";
 import { TextInput } from "react-native-element-textinput";
 import filter from "lodash.filter";
 import { useFocusEffect } from "@react-navigation/native";
@@ -30,13 +20,12 @@ import { useAuth } from "../Util/AuthContext";
 import axios from "axios";
 import { baseUrl } from "../Util/BaseUrl";
 import { useRoute } from "@react-navigation/native";
-import SuccessModal from "../Util/SuccessModal";
 import ResponseDialog from "../Components/ResponseDialog";
 import ActionModal from "../Components/ActionModal";
 import Colors from "../Util/static/Colors";
+import Spacing from "../Util/static/Spacing";
 
 const DetailsAbonneScreen = () => {
-  const navigation = useNavigation();
   const route = useRoute();
   const { item } = route.params;
   const [data, setData] = useState([]);
@@ -171,169 +160,172 @@ const DetailsAbonneScreen = () => {
 
   return (
     <SafeAreaView style={{ ...StyleSheet.absoluteFillObject, flex: 1 }}>
-      <ActionModal
-        isVisible={modalVisible}
-        onClose={() => setModalVisible(false)}
-        onConfirm={addPrestation}
-        modalTitle="Confirmez vous la prestation?"
-        modalText={`En validant vous confirmez une nouvelle prestation pour l'abonné ${item?.attributes?.NomComplet} Aujourd'hui`}
-      />
-      <ResponseDialog
-        title={"Nouvelle Prestation Abonné"}
-        message={`Une nouvelle dépense a été ajoutée pour l'abonné ${item?.attributes?.NomComplet} .`}
-        actionButtonText={"Fermer"}
-        color={Colors.baseColor}
-        visible={isModalVisible}
-        onClose={() => setModalVisible(false)}
-      />
-      <View style={styles.header}>
-        {/* <Image style={styles.avatar} source={AppImages.userImage} /> */}
-        <View style={{ flex: 1, marginHorizontal: 8 }}>
-          <YStack>
-            <View style={styles.dashTextBox}>
-              <Text style={{ color: "darkgrey" }}>Nom Abonné(e)</Text>
-              <Text style={styles.username}>
-                {" "}
-                {item?.attributes?.NomComplet}
-              </Text>
-            </View>
-            <View>
-              <Text style={{ color: "darkgrey" }}>Catégorie Lavage</Text>
-              <Text style={styles.username}>
-                {" "}
-                {item?.attributes?.category_lavage?.data?.attributes?.name}{" "}
-              </Text>
-            </View>
-          </YStack>
-        </View>
-        <View style={{ flex: 1, marginHorizontal: 8, alignItems: "flex-end" }}>
-          <YStack>
-            <View style={styles.dashTextBox}>
-              <Text style={{ color: "darkgrey" }}>Type Lavage</Text>
-              <Text style={styles.username}>
-                {item?.attributes?.type_lavage?.data?.attributes?.title}
-              </Text>
-            </View>
-            <View>
-              <Text style={{ color: "darkgrey" }}>Solde</Text>
-              <Text style={styles.username}> {item?.attributes?.Solde} </Text>
-            </View>
-          </YStack>
-        </View>
-      </View>
-
-      <View style={styles.sectionTitle}>
-        <Text style={{ color: "darkgrey" }}>Details Abonnés</Text>
-      </View>
-
-      <View style={styles.dayInfoContainer}>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <View style={[styles.boxContainer]}>
-            <View style={styles.iconGroup}>
-              <View style={styles.iconOverlapGroup}>
-                <View style={styles.ellipse} />
-                <Entypo name="plus" color={Colors.baseColor} size={30} />
-              </View>
-            </View>
-            <View style={styles.boxInfoVertical}>
-              <Text style={styles.boxInfoVerticalTitle}>
-                Nouvelle Prestation
-              </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setOpen(true)}>
-          <View style={[styles.boxContainer]}>
-            <View style={styles.iconGroup}>
-              <View style={styles.iconOverlapGroup}>
-                <View style={styles.ellipse} />
-                <FontAwesome5
-                  name="hand-holding-usd"
-                  size={24}
-                  color={Colors.baseColor}
-                />
-              </View>
-            </View>
-            <View style={styles.boxInfoVertical}>
-              <Text style={styles.boxInfoVerticalTitle}>Versement</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
-      <View style={[styles.sectionTitle, { marginTop: 16 }]}>
-        <Text style={{ color: "darkgrey" }}>
-          Liste des Prestations du Mois:
-        </Text>
-        <Text style={{ fontWeight: "bold", marginRight: "7%" }}>
-          {" "}
-          {countAbonnePrestas} Prestation(s)
-        </Text>
-      </View>
-      <FlashList
-        ListHeaderComponent={
-          <TextInput
-            value={query}
-            style={styles.input}
-            inputStyle={styles.inputStyle}
-            labelStyle={styles.labelStyle}
-            placeholderStyle={styles.placeholderStyle}
-            textErrorStyle={styles.textErrorStyle}
-            label="Rechercher dans la liste"
-            placeholder="Rechercher par le nom, montant, immatriculation ou type paiement"
-            placeholderTextColor="gray"
-            onChangeText={(text) => {
-              handleSearch(text);
-            }}
-          />
-        }
-        data={data}
-        renderItem={(item) => <ListCardPrestaAbonne item={item} />}
-        estimatedItemSize={20}
-        contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
-        onEndReachedThreshold={0.2}
-      />
-      <Sheet
-        forceRemoveScrollEnabled={open}
-        modal={modal}
-        open={open}
-        onOpenChange={setOpen}
-        snapPoints={snapPoints}
-        snapPointsMode={snapPointsMode}
-        dismissOnSnapToBottom
-        position={position}
-        onPositionChange={setPosition}
-        zIndex={100_000}
-        animation=""
-        moveOnKeyboardChange={true}
-      >
-        <Sheet.Overlay
-          animation="lazy"
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
+      <View style={styles.container}>
+        <ActionModal
+          isVisible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onConfirm={addPrestation}
+          modalTitle="Confirmez vous la prestation?"
+          modalText={`En validant vous confirmez une nouvelle prestation pour l'abonné ${item?.attributes?.NomComplet} Aujourd'hui`}
         />
-        <Sheet.Handle />
-        <Sheet.Frame padding="$4" space="$5">
-          <YStack>
-            <Label htmlFor="montant">Montant du Versement</Label>
-            <Input
-              size="$4"
-              id="montant"
-              placeholder="Montant"
-              value={montant}
-              onChangeText={setMontant}
-              style={styles.shadowStyle}
+        <ResponseDialog
+          title={"Nouvelle Prestation Abonné"}
+          message={`Une nouvelle dépense a été ajoutée pour l'abonné ${item?.attributes?.NomComplet} .`}
+          actionButtonText={"Fermer"}
+          color={Colors.baseColor}
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+        />
+        <View style={styles.header}>
+          <View style={{ flex: 1, marginHorizontal: 8 }}>
+            <YStack>
+              <View style={styles.dashTextBox}>
+                <Text style={{ color: "darkgrey" }}>Nom Abonné(e)</Text>
+                <Text style={styles.username}>
+                  {" "}
+                  {item?.attributes?.NomComplet}
+                </Text>
+              </View>
+              <View>
+                <Text style={{ color: "darkgrey" }}>Catégorie Lavage</Text>
+                <Text style={styles.username}>
+                  {" "}
+                  {
+                    item?.attributes?.category_lavage?.data?.attributes?.name
+                  }{" "}
+                </Text>
+              </View>
+            </YStack>
+          </View>
+          <View style={{ flex: 1, alignItems: "flex-end", padding: Spacing }}>
+            <YStack>
+              <View style={styles.dashTextBox}>
+                <Text style={{ color: "darkgrey" }}>Type Lavage</Text>
+                <Text style={styles.username}>
+                  {item?.attributes?.type_lavage?.data?.attributes?.title}
+                </Text>
+              </View>
+              <View>
+                <Text style={{ color: "darkgrey" }}>Solde</Text>
+                <Text style={styles.username}> {item?.attributes?.Solde} </Text>
+              </View>
+            </YStack>
+          </View>
+        </View>
+
+        <View style={styles.sectionTitle}>
+          <Text style={{ color: "darkgrey" }}>Details Abonnés</Text>
+        </View>
+
+        <View style={styles.dayInfoContainer}>
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            <View style={[styles.boxContainer]}>
+              <View style={styles.iconGroup}>
+                <View style={styles.iconOverlapGroup}>
+                  <View style={styles.ellipse} />
+                  <Entypo name="plus" color={Colors.baseColor} size={30} />
+                </View>
+              </View>
+              <View style={styles.boxInfoVertical}>
+                <Text style={styles.boxInfoVerticalTitle}>
+                  Nouvelle Prestation
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setOpen(true)}>
+            <View style={[styles.boxContainer]}>
+              <View style={styles.iconGroup}>
+                <View style={styles.iconOverlapGroup}>
+                  <View style={styles.ellipse} />
+                  <FontAwesome5
+                    name="hand-holding-usd"
+                    size={24}
+                    color={Colors.baseColor}
+                  />
+                </View>
+              </View>
+              <View style={styles.boxInfoVertical}>
+                <Text style={styles.boxInfoVerticalTitle}>Versement</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={[styles.sectionTitle, { marginTop: 16 }]}>
+          <Text style={{ color: "darkgrey" }}>
+            Liste des Prestations du Mois:
+          </Text>
+          <Text style={{ fontWeight: "bold", marginRight: "7%" }}>
+            {" "}
+            {countAbonnePrestas} Prestation(s)
+          </Text>
+        </View>
+        <FlashList
+          ListHeaderComponent={
+            <TextInput
+              value={query}
+              style={styles.input}
+              inputStyle={styles.inputStyle}
+              labelStyle={styles.labelStyle}
+              placeholderStyle={styles.placeholderStyle}
+              textErrorStyle={styles.textErrorStyle}
+              label="Rechercher dans la liste"
+              placeholder="Rechercher par le nom, montant, immatriculation ou type paiement"
+              placeholderTextColor="gray"
+              onChangeText={(text) => {
+                handleSearch(text);
+              }}
             />
-            <Button
-              color={Colors.background}
-              backgroundColor={Colors.baseColor}
-              onPress={addVersement}
-              marginTop={10}
-            >
-              Enregistrer
-            </Button>
-          </YStack>
-        </Sheet.Frame>
-      </Sheet>
+          }
+          data={data}
+          renderItem={(item) => <ListCardPrestaAbonne item={item} />}
+          estimatedItemSize={20}
+          contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 100 }}
+          onEndReachedThreshold={0.2}
+        />
+        <Sheet
+          forceRemoveScrollEnabled={open}
+          modal={modal}
+          open={open}
+          onOpenChange={setOpen}
+          snapPoints={snapPoints}
+          snapPointsMode={snapPointsMode}
+          dismissOnSnapToBottom
+          position={position}
+          onPositionChange={setPosition}
+          zIndex={100_000}
+          animation=""
+          moveOnKeyboardChange={true}
+        >
+          <Sheet.Overlay
+            animation="lazy"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}
+          />
+          <Sheet.Handle />
+          <Sheet.Frame padding="$4" space="$5">
+            <YStack width={"80%"} style={{alignSelf: "center"}}>
+              <Label htmlFor="montant">Montant du Versement</Label>
+              <Input
+                size="$4"
+                id="montant"
+                placeholder="Montant"
+                value={montant}
+                onChangeText={setMontant}
+                style={styles.shadowStyle}
+              />
+              <Button
+                color={Colors.background}
+                backgroundColor={Colors.baseColor}
+                onPress={addVersement}
+                marginTop={10}
+              >
+                Enregistrer
+              </Button>
+            </YStack>
+          </Sheet.Frame>
+        </Sheet>
+      </View>
     </SafeAreaView>
   );
 };
@@ -343,33 +335,13 @@ export default DetailsAbonneScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-
-  pointsCount: {
-    color: "white",
-    fontSize: 12,
-  },
-  charContainer: {
-    width: 30,
-    height: 30,
-    padding: 8,
-    backgroundColor: "rgba(128, 128, 128, 0.4)",
-    borderRadius: 24,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: Spacing,
+    marginHorizontal:8,
   },
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    padding: 16,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginHorizontal: 8,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(231, 236, 243, 0.4)",
+    padding: Spacing,
   },
   username: {
     color: "black",
@@ -377,70 +349,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 4,
   },
-  responsiveContainer: {
-    width: "100%",
-    maxWidth: 600,
-    alignSelf: "center",
-  },
-  inputContainer: {
-    flex: 1,
-    padding: 8,
-  },
-  proceedBtnContainer: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    alignItems: "center",
-  },
-  proceedButton: {
-    width: "100%",
-    maxWidth: 600,
-    paddingVertical: 16,
-    marginTop: 24,
-    marginBottom: 8,
-    elevation: 8,
-    ...Platform.select({
-      default: {
-        shadowColor: "rgb(82, 176, 167)",
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.44,
-        shadowRadius: 10.32,
-      },
-      web: { boxShadow: "0px 8px 10.32px rgba(82, 176, 167, 0.44)" },
-    }),
-  },
-  proceedText: {
-    color: "black",
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  activeTicketTxt: {
-    fontSize: 18,
-    fontWeight: "bold",
-    paddingTop: 24,
-    paddingBottom: 8,
-  },
-  notesInput: {
-    minHeight: 100,
-    flexDirection: "row",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "grey",
-    marginTop: 16,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: "white",
-    ...Platform.select({
-      default: { textAlignVertical: "top" },
-      web: { verticalAlign: "top" },
-    }),
-  },
 
   // DAY DASHBOARD STYLES
   dayInfoContainer: {
     display: "flex",
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
+    marginHorizontal: 8,
+    paddingHorizontal: Spacing,
   },
   boxContainer: {
     alignItems: "center",
@@ -486,13 +402,6 @@ const styles = StyleSheet.create({
     left: 0,
     width: 40,
   },
-  boxImage: {
-    height: 24,
-    position: "absolute",
-    top: 8,
-    left: 8,
-    width: 24,
-  },
   boxInfoVertical: {
     alignItems: "flex-start",
     display: "flex",
@@ -511,29 +420,18 @@ const styles = StyleSheet.create({
     opacity: 0.4,
     position: "relative",
   },
-  boxInfoVerticalContent: {
-    color: "#222222",
-    // fontFamily: 'DM Sans-Bold',
-    fontSize: 20,
-    fontWeight: "700",
-    letterSpacing: 0,
-    // lineHeight: 'normal',
-    position: "relative",
-  },
-
   // Outside title text
   sectionTitle: {
     display: "flex",
     flexDirection: "row",
-    marginLeft: "6%",
-    marginVertical: "2%",
+    marginHorizontal: 8,
+    padding: Spacing,
     justifyContent: "space-between",
   },
-
   input: {
     height: 50,
-    paddingHorizontal: "6%",
-    marginHorizontal: "3%",
+    padding: Spacing,
+    marginHorizontal: 8,
     borderRadius: 20,
     backgroundColor: "white",
     shadowColor: "#ff2e2e",

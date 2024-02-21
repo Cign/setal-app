@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useFocusEffect } from "@react-navigation/native";
 import { FlashList } from "@shopify/flash-list";
 import ListCard from "../../Components/ListCard";
+import ListCardDepense from "../../Components/ListCardDepense";
 import {
   Input,
   Tabs,
@@ -79,6 +80,8 @@ const Dashboard = () => {
   const [depList, setDepList] = useState([]);
   const [ogDepList, setOgDepList] = useState([]);
   const [weekData, setWeekData] = useState([]);
+  const [prestaCountByCat, setPrestaCountByCat] = useState([]);
+  const [weekDataGraph, setWeekDataGraph] = useState([]);
   const [ogData, setOgData] = useState([]);
   const [user, setUser] = useAuth();
   const [depenses, setDepenses] = useState(0);
@@ -361,15 +364,40 @@ const Dashboard = () => {
             }
           );
           setWeekData(data);
-          console.info(" to get Week", data);
+          console.info(" to get WEEK", data?.weeklySales[0]);
+          let output = [];
+          let values = [1, 2, 3, 4, 5, 6, 7];
+          for (let i = 0; i < data?.weeklySales[0].length; i++) {
+            let obj = { label: "", value: "", frontColor: Colors.baseColor };
+            obj.value = values[i]; //data?.weeklySales[1][i] for real data
+            obj.label = data?.weeklySales[0][i];
+
+            output.push(obj);
+          }
+          setWeekDataGraph(output);
+          console.info(" to GO WEEK", output);
         } catch (err) {
           console.error("Failed to get Week", err);
+        }
+      };
+      const getPrestaCountByCat = async () => {
+        try {
+          const { data } = await axios.get(
+            `${baseUrl}/api/prestations/adminDashboard/countPrestationsByCategoryLavage`,
+            {
+              headers: { Authorization: `Bearer ${user?.token}` },
+            }
+          );
+          setPrestaCountByCat(data);
+        } catch (err) {
+          console.error("Failed to get COUNT BY CAT", err);
         }
       };
       getDashboardData();
       getPrestationsListRange();
       getWeeklyData();
       getDepensesListRange();
+      getPrestaCountByCat();
     }, [range])
   );
 
@@ -382,7 +410,7 @@ const Dashboard = () => {
           data={data}
           renderItem={(item) => <ListCard item={item} />}
           estimatedItemSize={50}
-          contentContainerStyle={{ paddingHorizontal: 1, paddingBottom: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 9.5, paddingBottom: 130 }}
           onEndReached={() => {
             // Since FlatList is a pure component, data reference should change for a render
             const elems = [...data];
@@ -407,9 +435,9 @@ const Dashboard = () => {
       <View style={{ height: 400 }}>
         <FlashList
           data={depList}
-          renderItem={(item) => <ListCard item={item} />}
+          renderItem={(item) => <ListCardDepense item={item} />}
           estimatedItemSize={50}
-          contentContainerStyle={{ paddingHorizontal: 1, paddingBottom: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 0.5, paddingBottom: 130 }}
           onEndReached={() => {
             // Since FlatList is a pure component, data reference should change for a render
             const elems = [...depList];
@@ -429,80 +457,21 @@ const Dashboard = () => {
     );
   };
 
-  const pieData = [
-    {
-      value: 47,
-      color: "#009FFF",
-      gradientCenterColor: "#006DFF",
-      focused: true,
-    },
-    { value: 40, color: "#93FCF8", gradientCenterColor: "#3BE9DE" },
-    { value: 16, color: "#BDB2FA", gradientCenterColor: "#8F80F3" },
-    { value: 3, color: "#FFA5BA", gradientCenterColor: "#FF7F97" },
-  ];
-
-  const renderDot = (color) => {
+  const renderLegend = (text, color) => {
     return (
-      <View
-        style={{
-          height: 10,
-          width: 10,
-          borderRadius: 5,
-          backgroundColor: color,
-          marginRight: 10,
-        }}
-      />
-    );
-  };
-
-  const renderLegendComponent = () => {
-    return (
-      <>
+      <View style={{ flexDirection: "row", marginBottom: 10 }}>
         <View
           style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            marginBottom: 10,
+            height: 18,
+            width: 18,
+            borderRadius: 4,
+            backgroundColor: color || "white",
           }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              width: 120,
-              marginRight: 20,
-            }}
-          >
-            {renderDot("#006DFF")}
-            <Text style={{ color: "white" }}>Excellent: 47%</Text>
-          </View>
-          <View
-            style={{ flexDirection: "row", alignItems: "center", width: 120 }}
-          >
-            {renderDot("#8F80F3")}
-            <Text style={{ color: "white" }}>Okay: 16%</Text>
-          </View>
-        </View>
-        <View style={{ flexDirection: "row", justifyContent: "center" }}>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              width: 120,
-              marginRight: 20,
-            }}
-          >
-            {renderDot("#3BE9DE")}
-            <Text style={{ color: "white" }}>Good: 40%</Text>
-          </View>
-          <View
-            style={{ flexDirection: "row", alignItems: "center", width: 120 }}
-          >
-            {renderDot("#FF7F97")}
-            <Text style={{ color: "white" }}>Poor: 3%</Text>
-          </View>
-        </View>
-      </>
+        />
+        <Text style={{ color: "black", fontSize: 16, marginRight: 6 }}>
+          {text || ""}
+        </Text>
+      </View>
     );
   };
 
@@ -539,7 +508,7 @@ const Dashboard = () => {
             </Text>
           </View>
 
-          <TouchableOpacity style={{ bottom: -8 }} onPress={() => {}}>
+          <TouchableOpacity style={{ bottom: -8 }} onPress={() => setUser(null)}>
             <View style={styles.fPointsContainer}>
               <View style={styles.charContainer}>
                 <Text style={{ fontWeight: "bold", color: "white" }}>
@@ -554,44 +523,66 @@ const Dashboard = () => {
             </View>
           </TouchableOpacity>
         </View>
-        <View style={{justifyContent:"space-around",}}>
-        <BarChart
-          barWidth={22}
-          noOfSections={3}
-          barBorderRadius={4}
-          frontColor="lightgray"
-          data={barData}
-          yAxisThickness={0}
-          xAxisThickness={0}
-        />
-        <View style={{ padding: 20, alignItems: "center" }}>
-          <PieChart
-            data={pieData}
-            donut
-            showGradient
-            sectionAutoFocus
-            radius={90}
-            innerRadius={60}
-            innerCircleColor={"#232B5D"}
-            centerLabelComponent={() => {
-              return (
-                <View
-                  style={{ justifyContent: "center", alignItems: "center" }}
-                >
-                  <Text
-                    style={{ fontSize: 22, color: "white", fontWeight: "bold" }}
+        <View
+          style={{
+            padding: 50,
+            justifyContent: "space-between",
+            flexDirection: "row",
+            alignItems: "center",
+            flex: 1,
+          }}
+        >
+          <View>
+            <Text style={{ marginBottom: 3 }}>
+              Nombre de prestations de la semaine par jour
+            </Text>
+            <BarChart
+              barWidth={20}
+              noOfSections={3}
+              barBorderRadius={4}
+              frontColor="lightgray"
+              data={weekDataGraph}
+              yAxisThickness={0}
+              xAxisThickness={0}
+              renderTooltip={(item, index) => {
+                return (
+                  <View
+                    style={{
+                      marginBottom: 20,
+                      marginLeft: -2,
+                      backgroundColor: "#fff",
+                      paddingHorizontal: 6,
+                      paddingVertical: 4,
+                      borderRadius: 4,
+                    }}
                   >
-                    47%
-                  </Text>
-                  <Text style={{ fontSize: 14, color: "white" }}>
-                    Excellent
-                  </Text>
-                </View>
-              );
-            }}
-          />
-        </View>
-        {renderLegendComponent()}
+                    <Text>{item.value}</Text>
+                  </View>
+                );
+              }}
+            />
+          </View>
+          <View>
+            <Text style={{ marginBottom: 3 }}>
+              Nombre de prestations de la semaine par catégorie{" "}
+            </Text>
+            <View style={{ flexDirection: "row" }}>
+              {prestaCountByCat.map((item, index) =>
+                renderLegend(item.label, item.color)
+              )}
+            </View>
+            <PieChart
+              data={prestaCountByCat}
+              showText
+              textColor="black"
+              radius={100}
+              textSize={18}
+              focusOnPress
+              showValuesAsLabels
+              showTextBackground
+              textBackgroundRadius={20}
+            />
+          </View>
         </View>
 
         <View style={styles.sectionTitle}>
@@ -684,7 +675,21 @@ const Dashboard = () => {
             renderScene={renderScene}
             onIndexChange={setIndex}
             initialLayout={{ width: 360 }}
-            renderTabBar={(props) => <TabBar indicatorStyle={{backgroundColor: Colors.background, borderRadius: 10}} style={{backgroundColor: Colors.baseColor, borderRadius: 10, marginVertical: 10}} {...props} labelStyle={{fontWeight: "bold"}} />}
+            renderTabBar={(props) => (
+              <TabBar
+                indicatorStyle={{
+                  backgroundColor: Colors.background,
+                  borderRadius: 10,
+                }}
+                style={{
+                  backgroundColor: Colors.baseColor,
+                  borderRadius: 10,
+                  marginVertical: 10,
+                }}
+                {...props}
+                labelStyle={{ fontWeight: "bold" }}
+              />
+            )}
           />
         </View>
       </ScrollView>

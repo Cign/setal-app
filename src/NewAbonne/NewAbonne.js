@@ -7,7 +7,6 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import {
@@ -118,9 +117,8 @@ const NewPrestationScreen = () => {
             padding="$2"
             style={{ backgroundColor: "white" }}
           >
-            {/* <H4>{status[0].toUpperCase() + status.slice(1)}</H4> */}
             <YStack
-              width={300}
+              width={"80%"}
               minHeight={250}
               overflow="hidden"
               space="$2"
@@ -286,16 +284,16 @@ const NewPrestationScreen = () => {
                   style={styles.shadowStyle}
                 />
               </XStack>
+              <Button
+                size={"$4"}
+                style={{ width: "100%" }}
+                onPress={createAbonne}
+                backgroundColor={Colors.baseColor}
+                color={Colors.background}
+              >
+                Enregistrer
+              </Button>
             </YStack>
-            <Button
-              size={"$4"}
-              style={{ width: "80%" }}
-              onPress={createAbonne}
-              backgroundColor={Colors.baseColor}
-              color={Colors.background}
-            >
-              Enregistrer
-            </Button>
           </Form>
         </KeyboardAvoidingView>
       </View>
@@ -339,22 +337,6 @@ const styles = StyleSheet.create({
   },
   mb: {
     marginBottom: 1,
-  },
-  link: {
-    color: "rgb(23, 111, 211)",
-  },
-  avatar: {
-    height: 50,
-    width: 50,
-    backgroundColor: "rgb(23, 111, 211)",
-    borderRadius: 25,
-    alignSelf: "center",
-    padding: 6,
-    cursor: "pointer",
-    shadowColor: "#000",
-    shadowOffset: { width: 12.5, height: 12.5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
   },
   input: {
     height: 55,

@@ -18,7 +18,7 @@ const Card = ({ title, number, icon }) => {
         </View>
         <Text style={styles.titleText}>{title}</Text>
         <View style={styles.percent}>
-          <Text style={styles.percentText}>20%</Text>
+          {/* <Text style={styles.percentText}>20%</Text> */}
         </View>
       </View>
       <View style={styles.data}>

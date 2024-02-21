@@ -22,7 +22,7 @@ const DatePicker = ({ value, onChange }) => {
         testID: "dateTimePicker",
         value: dateSelected,
         mode: "date",
-        minimumDate: new Date(),
+        // minimumDate: new Date(),
         onChange: onDateChange,
       });
   };
@@ -32,7 +32,7 @@ const DatePicker = ({ value, onChange }) => {
       testID="dateTimePicker"
       value={dateSelected}
       mode="date"
-      minimumDate={new Date()}
+      // minimumDate={new Date()}
       onChange={onDateChange}
       themeVariant="light"
     />

@@ -6,8 +6,6 @@
 
 import { config } from '@tamagui/config/v2-native'
 
-import { Text, View } from 'react-native'
-
 import { createTamagui } from 'tamagui' // ou '@tamagui/core'
 const appConfig = createTamagui(config)
 
